@@ -1,0 +1,156 @@
+-第一题
+
+ --代码
+     1    class A {
+     2        String i = "op";
+     3        void func(String s) {
+     4            s = ""+9;
+     5        }
+     6        static void test() {
+     7            A a = new A();
+     8        a.func(a.i);
+     9        }
+     10   } 
+
+ --问：
+
+    1. 变量i,s,a在堆还是在栈中？
+
+    2. 第8行执行完后a.i的值是什么？
+
+ --解答：
+    1.isa都在栈中，第7行new之后的对象A在堆上
+
+    2.仍是字符串“op”
+
+ --解析：
+    1.考察js堆栈，栈内存主要用于存储各种基本类型，
+    如Boolean,Number,String,Undefined,Null以及对象变量的指针
+    堆主要存储object
+    所以字符串变量i，s和对象指针a都在存在栈上，
+    new出来的对象开辟内存存在堆上，对应地址是指针a存的内容
+
+    2.考察参数传递的按值传递，a是A类的实例，所以a.i值为"op"
+    第八行 a.func(a.i); 执行函数，把a.i作为参数传递，
+    该函数会复制一个变量，值为a.i的值，该变量与a.i完全独立
+    在函数体内只改变复制过去的那个变量，对a.i的值无影响
+
+-第二题
+
+    --请按顺序写出打印结果，并说明原因。
+        var name = 'global';
+        var obj = {
+            name: 'local',
+            foo: function(){
+                this.name = 'foo';
+            }.bind(window)
+        };
+        var bar = new obj.foo();
+        setTimeout(function() {
+            console.log(window.name);
+        }, 0);
+        console.log(bar.name);
+        
+        var bar3 = bar2 = bar;
+        bar2.name = 'foo2';
+        console.log(bar3.name);
+
+    --解答：
+    第一步 执行全局Script同步代码
+    声明变量name
+    声明对象obj
+    声明函数bar，由于new绑定的优先级大于bind绑定，所以函数内部this还是obj 
+    函数的功能是执行obj.boo将window的name设为“foo”
+    setTimeout定时器任务，在最后放入任务队列
+    输出bar.name  即“foo”
+    声明bar3 bar2 此时执行顺序是var bar3,bar2=bar,bar3=bar2 bar2,bar3,bar都指向同一个对象
+    将bar2即obj的name修改为“foo2”
+    输出bar3 即 obj的name 即 “foo2”
+    执行异步输出window的name 即“global”
+    输出：
+    "foo“
+    "foo2"
+    "global"
+
+    --解析：
+    EventLoop 参考资料https://segmentfault.com/a/1190000016278115
+
+-第三题
+    请写出如下代码运行后产生的结果，并给出解释，说明结果是如何得出的。
+    setTimeout(() => console.log('a'));//callback1
+    Promise.resolve().then( //callback2
+    () => console.log('b’);
+    ).then( //callback3
+    () => Promise.resolve('c').then( //callback4
+        (data) => {
+        setTimeout(() => console.log('d')); //callback5
+        console.log('f');
+        return data;
+        }
+    )
+    ).then(data => console.log(data)); //callback 6
+
+    解答：
+    EventLoop执行顺序：全局JavaScript同步代码->微队列->宏队列
+    第一趟
+        Mac c1 
+        Mic c2
+    先执行c2 输出“b”，c3进入mic队列
+    第二趟
+        Mac c1
+        Mic c3
+    先执行c3 向c4传入参数“c”（此时不输出），c4进入mic队列
+    第三趟
+        Mac c1
+        Mic c4
+    先执行c4 传入参数，data值为“c”，将c5加入mac队列，
+            输出“f”，返回data作为callback6的参数，将c6加入mic队列
+    第四趟
+        Mac c1 c5
+        Mic c6
+    先执行c6 传入参数data 值为“c” 输出“c”
+    第五趟
+        Mac C1 c5
+        Mic 空
+    依次执行c1 c5 输出“a”和“d”
+
+    综上所述，代码运行后产生的结果为“bfcad”
+
+    解析：
+    答案：bfcad
+    考察点：主要考察js event loop以及宏任务和微任务；
+
+-第四题
+    请写出下面ES6代码编译后所生成的ES5代码；
+    class Person {
+        constructor (name) {
+            this.name = name;
+        }
+        greet () {
+            console.log(`Hi, my name is ${this.name}`);
+        }
+        greetDelay (time) {
+            setTimeout(() => {
+                console.log(`Hi, my name is ${this.name}`);
+            }, time);
+        }
+    }
+    
+    参考答案：
+     var Person = (function () {
+        function Person (name) {
+            this._name = name;
+        }
+        Person.prototype.greet = function () {
+            console.log(“Hi, my name is “ + this._name);
+        }
+        Person.prototype.greetDelay = function (time) {
+            var _this = this;
+            setTimeout(function () {
+                console.log(“Hi, my name is “ + _this.name);
+            }, time);
+        }
+    })();
+
+    考察点：
+    ES6语法糖理解，ES6编译到ES5过程理解，JS原型理解，this指向理解；
