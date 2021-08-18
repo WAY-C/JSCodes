@@ -1,0 +1,18 @@
+{
+    "sourceFile": "FED39使用闭包/fed39.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1629250477520,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1629250477520,
+            "name": "Commit-0",
+            "content": "// FED39使用闭包\r\n// 描述\r\n// 实现函数 makeClosures，调用之后满足如下条件：\r\n// 1、返回一个函数数组 result，长度与 arr 相同\r\n// 2、运行 result 中第 i 个函数，即 result[i]()，结果与 fn(arr[i]) 相同\r\n\r\n// 示例1\r\n// 输入：\r\n// [1, 2, 3], function (x) { \r\n// \treturn x * x; \r\n// }\r\n\r\n// 输出：\r\n// 4\r\n// ES6的let\r\n// let声明的变量只在let所在代码块内有效，因此每次循环的i都是一个新的变量\r\nfunction makeClosures(arr, fn) {\r\n    var result = new Array();\r\n    for (let i = 0; i < arr.length; i++) {\r\n        result[i] = function() {\r\n            return fn(arr[i]);\r\n        };\r\n    }\r\n    return result;\r\n}\r\n// 参考《JavaScript高级程序设计》的典型方法 \r\nfunction makeClosures(arr, fn) {\r\n    var result = new Array();\r\n    for (var i = 0; i < arr.length; i++) {\r\n        result[i] = function(num) {\r\n            return function() {\r\n                return fn(num);\r\n            }\r\n        }(arr[i]);\r\n    }\r\n    return result;\r\n}\r\n// ES5的bind方法\r\nfunction makeClosures(arr, fn) {\r\n    var result = new Array();\r\n    for (var i = 0; i < arr.length; i++) {\r\n        result[i] = fn.bind(null, arr[i]);\r\n    }\r\n    return result;\r\n}"
+        }
+    ]
+}

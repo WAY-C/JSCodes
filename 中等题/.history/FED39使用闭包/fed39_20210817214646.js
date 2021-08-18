@@ -12,14 +12,12 @@
 
 // 输出：
 // 4
-// ES6的let
-// let声明的变量只在let所在代码块内有效，因此每次循环的i都是一个新的变量
+
 function makeClosures(arr, fn) {
-    var result = new Array();
+    var result = [];
+    let args = arr.slice(0);
     for (let i = 0; i < arr.length; i++) {
-        result[i] = function() {
-            return fn(arr[i]);
-        };
+        result.push(fn.bind(this, args[i]));
     }
     return result;
 }
@@ -32,14 +30,6 @@ function makeClosures(arr, fn) {
                 return fn(num);
             }
         }(arr[i]);
-    }
-    return result;
-}
-// ES5的bind方法
-function makeClosures(arr, fn) {
-    var result = new Array();
-    for (var i = 0; i < arr.length; i++) {
-        result[i] = fn.bind(null, arr[i]);
     }
     return result;
 }
