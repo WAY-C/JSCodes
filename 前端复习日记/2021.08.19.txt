@@ -1,0 +1,446 @@
+JavaScript规定了几种语言类型,基本数据类型有哪些
+    两大类：6种简单数据类型（也叫原始类型）,还有一种复杂数据类型叫Object（无序名值对的集合）
+    简单数据类型：Undefined Null Boolean Number String Symbol
+    其中symbol是ES6新定义的
+
+至少可以说出三种判断JavaScript数据类型的方式，以及他们的优缺点
+（1）typeof 
+    优点：快捷
+    缺点：只能检测数字符串、数值、布尔值、符号或undefined, 对象和null返回"object"
+    注：typeof在检测函数时也会返回"function"
+        在Safari（直到Safari 5）和Chrome（直到Chrome 7）中，由于实现细节的原因，检测正则表达式也会返回"function"
+        ECMA-262规定，任何实现内部[[call]]方法的对象都应该在typeof检测时返回"function"
+        在 IE 和 Firefox 中，typeof对正则表达式返回"object"
+（2）instanceof 
+    result = variable instanceof constructor
+    返回true 或 false
+    优点：能检测出引用类型（对象）
+    缺点：不能检测基本类型，且不能跨iframe
+（3）用变量的constructor
+    var a = 1;
+    console.log(a.constructor); //"[Function: Number]"
+    优点：可以判断除了undefined和null以外的绝大部分类型
+    缺点：constructor易被修改，也不能跨iframe
+    解决方法：可以先把值转换为布尔值，如果为true，则说明不是iundefined和null值，然后再调用constructor属性
+（4）Object.prototype.toString.call() //最佳实践方法
+    toString是Object原型对象上的一个方法，该方法默认返回其调用者的具体类型，
+    更严格的讲，是 toString运行时this指向的对象类型, 
+    返回的类型格式为[object,xxx],xxx是具体的数据类型，
+    其中包括：String,Number,Boolean,Undefined,Null,Function,Date,Array,RegExp,Error,HTMLDocument,… 
+    基本上所有对象的类型都可以通过这个方法获取到。
+    优点：检测所有类型
+    缺点：IE6下undefined和null被检测为object
+    注：对于 Object.prototype.toString.call(arg)，若参数为 null 或 undefined，直接返回结果。
+        若参数不为 null 或 undefined，则将参数转为对象，再作判断。对于原始类型，转为对象的方法即装箱
+        转为对象后，取得该对象的 [Symbol.toStringTag] 属性值（可能会遍历原型链）作为 tag
+    判断对象的方法？
+    如何准确的判断数组类型？
+    建议都使用第（4）中方法，2和3存在不能跨iframe问题
+
+typeof操作符可能返回的值
+"undefined","number","string","boolean","symbol","object"
+☆☆☆Symbol类型在实际开发中的应用
+    （1）消除魔法字符
+        如一段Tabs切换功能的代码：
+        if (type === 'basic') {
+            return <div>basic tab</div>
+        }
+        
+        if (type === 'super') {
+            return <div>super tab</div>
+        }
+        其中'basic'和'super'就是与业务代码无关的魔法字符
+        使用Symbol进行转换
+        const tabTypes = {
+            basic: Symbol(),
+            super: Symbol(),
+        }
+        
+        if (type === tabTypes.basic) {
+            return <div>basic tab</div>
+        }
+        
+        if (type === tabTypes.super) {
+            return <div>super tab</div>
+        }
+    （2）作为对象属性
+        当一个复杂对象中有很多属性时，很容易将某个属性覆盖掉，使用Symbol值作为属性名可以很好地避免这个现象
+        const name = Symbol('name');
+        const obj = {
+            [name]: 'ClickPaas',
+        }
+    （3）模拟类的私有方法
+        ES6 中的类是没有 private 关键字来声明类的私有方法和私有变量的，
+        但是我们可以利用 Symbol 的唯一性来模拟，如：
+        const speak = Symbol();
+        class Person {
+            [speak]() {
+                ...
+            }
+        }
+        由于使用者无法在外部创建出一个相同的speak，所以就无法调用该方法
+    （4）注册和获取全局Symbol
+
+☆☆☆JavaScript中的变量在内存中的具体存储形式、理解值类型和引用类型
+    （1）JS变量可以保存两种类型的值：原始值和引用值。
+    （2）原始值可能是以下6种原始数据类型之一：Undefined,Null,Boolean,Number,String,Symbol
+    （3）原始值大小固定，因此保存在栈内存上；
+        从一个变量到另一个变量复制原始值会创建该值的第二个副本
+        引用值是对象，存储在堆内存上
+        包含引用值的变量实际上只包含指向相应对象的一个指针，而不是对象本身
+        从一个变量到另一个变量复制引用值只会复制指针，因此结果是两个变量都指向同一个对象
+        typeof可以确定值的原始类型，instanceof用于确保值的引用类型
+    （4）举例：
+        let a1 = 0; // 栈内存
+        let a2 = "this is string" // 栈内存
+        let a3 = null; // 栈内存
+        let b = { x: 10 }; // 变量b存在于栈中(引用)，{ x: 10 }作为对象存在于堆中
+        let c = [1, 2, 3]; // 变量c存在于栈中（引用），[1, 2, 3]作为对象存在于堆中
+        a1,a2,a3都是原始数据类型，都在栈内保存这他们的数据段，按值访问，
+        而对于b和c这两个对象，仅仅是在栈中存放着各自对象的地址，
+        用来引用存放在堆内存的实际对象，按引用的方式访问
+
+js内置对象有哪些
+    （1）数据对象：Number(数字对象) String(字符串对象) Boolean(布尔值对象)
+    （2）组合对象：Array(数组对象) Math(数学对象) Date(日期对象)
+    （3）高级对象：Object(自定义对象) Error(错误对象) Global(全局对象) Function(函数对象) RegExp(正则表达式对象)
+
+基本类型对应的内置对象
+    Number，String，Boolean，Symbol
+
+☆☆☆js的全局函数有哪些
+    （1）js的全局属性：
+        Ifinity：代表正的无穷大的数值
+        NaN：指代某个值不是数字值
+        undefined：指示未定义的值
+    （2）js的全局函数：
+        decodeURI()：解码某个编码的URI
+        decodeURIComponent()：解码某个编码的URI组件
+        encodeURI()：把字符串编码为URI
+        encodeURIComponent()：把字符串编码为URI组件
+        escape()：对字符串进行编码
+        eval()：计算JS字符串，并把它作为脚本代码来执行
+        isFinite()：检查某个值是否为有穷值
+        isNaN()：检查某个值是否为数字
+        Number()：把对象的值转换为数字
+        parseFloat()：解析一个字符串并返回一个浮点数
+        parseInt()：解析一个字符串并返回一个整数
+        String()：把对象的值转换为字符串
+        unescape()：对由escape()编码的字符串进行解码
+
+☆☆☆null和undefined的区别
+    （1）相似性
+        if (!undefined) 
+            console.log('undefined is false');
+        // undefined is false
+
+        if (!null) 
+            console.log('null is false');
+        // null is false
+
+        undefined == null
+        // true
+
+    （2）历史原因
+        1995年JavaScript诞生时，最初像Java一样，只设置了null作为表示"无"的值。
+        根据C语言的传统，null被设计成可以自动转为0。
+        但是，JavaScript的设计者Brendan Eich，觉得这样做还不够，有两个原因。
+        首先，null像在Java里一样，被当成一个对象。
+        但是，JavaScript的数据类型分成原始类型（primitive）和合成类型（complex）两大类，
+        Brendan Eich觉得表示"无"的值最好不是对象。
+        其次，JavaScript的最初版本没有包括错误处理机制，
+        发生数据类型不匹配时，往往是自动转换类型或者默默地失败。
+        Brendan Eich觉得，如果null自动转为0，很不容易发现错误。
+        因此，Brendan Eich又设计了一个undefined。
+
+    （3）最初设计
+        JavaScript的最初版本是这样区分的：
+        null是一个表示"无"的对象，转为数值时为0；
+        undefined是一个表示"无"的原始值，转为数值时为NaN。
+
+    （4）目前的用法
+        目前，null和undefined基本是同义的，只有一些细微的差别。
+        null表示"没有对象"，即该处不应该有值。
+        典型用法是：
+        做函数的参数，表示该函数的参数不是对象
+        作为对象原型链的终点
+        Object.getPrototypeOf(Object.prototype)
+        // null
+
+        undefined表示缺少值，即此处应该有一个值，但是还没有被定义
+        典型用法是：
+        变量被声明了但是还没有赋值时，就等于undefined
+        调用函数时，应该提供的参数没有提供，该参数等于undefined
+        对象的属性没有赋值，该属性的值就为undefined
+        函数没有返回值时，就默认返回undefined
+
+☆☆☆可能发生隐式类型转换的场景以及转换原则，应如何避免或巧妙应用
+    1.可能发生隐式类型转换的场景：
+    （1）当JS需要一个布尔值时（如if语句），任何值都可以拿来使用，最终这些值将被转换为true或false
+    （2）在Web开发中我们经常得到字符串值，但实际上我们期望得到的是数字或布尔值，例如，用户输入的表单数据。
+        如果你忘了对这些字符串进行显式转换，那么JS会令你感到惊讶，体现在下面两个方面：
+        首先，系统不会有任何警告
+        其次，这些值将会被自动转换，但却是错误的
+    （3）对象的隐式转换
+    只有在JS语句或表达式中需要用到字符串或数字时，对象才会被转换。
+    2.转换原则：
+    （1）当JS需要一个布尔值时（如if语句），会区分“truthy”和“falsy”
+        falsy：
+            Number：-0，+0，undefined
+            undefined
+            null
+            String: "" (即空字符串)
+            Boolean：false
+        除上述falsy会转换成false外，其他值都会转为true
+    （2）字符串转换
+    +操作符：
+        +运算符要考虑字符串的情况，在操作数中存在字符串时，优先转换成字符串，
+        + 运算符其中一个操作数是字符串的话，会进行连接字符串的操作。
+        当一侧操作数为 String 类型，会优先将另一侧转换为字符串类型。
+        当一侧操作数为 Number 类型，另一侧为原始类型，则将原始类型转换为 Number 类型。
+        当一侧操作数为 Number 类型，另一侧为引用类型，将引用类型和 Number 类型转换成字符串后拼接。
+    -*/：
+        在非 Numeber 类型进行数学运算符-*/时，会优先将非Number类型转为Number类型
+        true -> 1   flase -> 0  undefined -> NaN    null -> 0
+        symbol报错  
+        字符串看内容：数字或进制值 -> 相应的数字    否则 -> NaN
+    （3）对象的隐式转换
+    当需要将对象转换为数字时，需要三个步骤：
+        首先调用valueOf()，如果结果是一个原始值，则将其转换成一个数字
+        否则调用toString()，如果结果是一个原始值，则将其转换成一个数字
+        否则，抛出一个类型错误
+        TypeError: Cannot convert objects to primitive value
+    3.拓展阅读
+    （1） {}+{}输出结果："[object Object][object Object]"
+    （2）Boolean('false') // true
+        Boolean('undefined') // true
+        // 这里他们都是字符串
+    （3）如何让：a == 1 && a == 2 && a == 3 为ture？
+        const a = {
+            value: [1,2,3],
+            valueOf: function(){this.value.pop()}
+        }
+        // 利用对象的隐式转换，定义一个对象a并重写它的valueOf方法
+    （4）++[[]][+[]]+[+[]]的值是多少？
+        ->  ++[[]][+[]]
+            +
+            [+[]]
+        由 +[]  ->  +""  或者 0  // +[] === 0在JS中是完全正确的
+        
+        -> ++[[]][0] + [0]
+
+        [[]][0]意为获取数组"[[]]"的第一个元素，返回内部数组"[]"，
+        根据语言规范 [[]][0] === [] 是不正确的，所以我们将其记为A
+        则 ++[[]][0] == A+1
+        则 ++[[]][0] == +(A+1)
+        换句话说，你得到的永远是一个数值，+1不一定得到数值，但++一定
+        将A换回[]
+
+        -> +([]+1) + [0]
+
+        在JS中， []+1 === '1' 是正确的，因为 [] == "" (这相当于一个空数组的内部元素连接)
+        则 +([]+1) === +("" + 1)
+        且 +("" + 1) === +("1")
+        且 +("1") === 1
+
+        -> 1 + [0]
+
+        在JS中，[0] == "0" 是正确的，相当于一个只有一个元素的数组的内部元素连接，各元素会使用逗号分隔
+
+        -> 1 + "0"
+
+        数字+字符串=字符串
+
+        ->得到字符串"10"
+
+        即 ++[[]][+[]]+[+[]] === "10"
+
+☆☆☆出现小数精度丢失的原因，JavaScript可以存储的最大数字、最大安全数字，JavaScript处理大数字的方法、避免精度丢失的方法
+    (1)
+    计算机的二进制实现和位数限制有些数无法有限表示。就像一些无理数不能有限表示，如 圆周率 3.1415926...，1.3333... 等。
+    JS 遵循 IEEE 754 规范，采用双精度存储（double precision），占用 64 bit。
+    1位用来表示符号位
+    11位用来表示指数
+    52位表示尾数
+    此时只能模仿十进制进行四舍五入了，但是二进制只有 0 和 1 两个，于是变为 0 舍 1 入。
+    这即是计算机中部分浮点数运算时出现误差，丢失精度的根本原因。
+
+    大整数的精度丢失和浮点数本质上是一样的，尾数位最大是 52 位，
+    因此 JS 中能精准表示的最大整数是 Math.pow(2, 53)，十进制即 9007199254740992。
+    大于 9007199254740992 的可能会丢失精度
+    对于整数，前端出现问题的几率可能比较低，毕竟很少有业务需要需要用到超大整数，
+    只要运算结果不超过 Math.pow(2, 53) 就不会丢失精度。
+    对于小数，前端出现问题的几率还是很多的，尤其在一些电商网站涉及到金额等数据。
+    解决方式：把小数放到位整数（乘倍数），再缩小回原来倍数（除倍数）
+
+    (2)
+    理论上：浮点数
+    查看方式  console.log(Number.MAX_VALUE)  =  1.7976931348623157e+308
+
+    实际上：整数
+    整数±2^53 = 9007199254740992
+    基本上超过16位整数就无法精确地表示了  超过这个最大值，所有的奇数都会+1或者-1变成偶数，无法准确赋值
+
+    (3)
+    避免精度丢失方法：toFixed()方法，先进行四舍五入取有效的小数位数，然后使用parseFloat()返回浮点数
+    处理大数字的方法：
+    ①使用big-integer处理大数
+    ②将数字变为字符串进行处理
+
+☆☆☆DOM操作——怎样添加、移除、移动、复制、创建和查找节点。
+1.添加节点
+1.1 appendChild() 用在childNodes列表末尾添加节点。
+    添加节点会更新相关的关系指针，包括父节点和之前的最后一个子节点。
+    appendChild() 方法返回新添加的节点，例如：
+
+    let returnedNode = someNode.appendChild(newNode);
+    alert(returnedNode == newNode); // true
+    alert(someNode.lastChild == newNode); // true
+
+    *注：如果把文档中已经存在的节点传给appendChild()，则这个节点会从之前的位置被转移到新位置。
+        即使DOM树通过各种关系指针维系，一个节点也不会在文档中同时出现在两个或更多个地方。
+
+1.2 insertBefore() 把节点放到childNodes中的特定位置而不是末尾。
+    这个方法接收两个参数：要插入的节点和参照节点。
+    调用这个方法后要插入的节点会变成参照节点的前一个同胞节点，并被返回。
+    如果参照节点是 null 则该方法与1.1效果相同。
+
+    // 作为最后一个子节点插入
+    let returnedNode = someNode.insertBefore(newNode, null);
+    // 作为新的第一个子节点插入
+    let returnedNode = someNode.insertBefore(newNode, someNode.firstChild);
+    // 插入最后一个子节点前面
+    let returnedNode = somenode.insertBefore(newNode, someNode.lastChild);
+
+1.3 replaceChild() 方法接收两个参数：要插入的节点和要替换的节点。
+    要替换的节点会被返回并从文档树中完全移除，要插入的节点会取而代之。
+
+    // 替换第一个子节点
+    let returnedNode = someNode.replaceChild(newNode, someNode.firstChild);
+
+    *注：使用replaceChild插入一个节点后，所有关系指针都会从被替换的节点复制过来。
+        虽然被替换的节点从技术上来说仍然被同一个文档所拥有，但是文档中已经没有它的位置。
+
+2.移除节点
+2.1 replaceChild() 
+    用replaceChild()方法用新节点替换旧节点
+
+2.2 removeChild() 方法接收一个参数，即要移除的节点，被移除的节点会被返回，如：
+
+    // 删除第一个子节点
+    let formerFirstChild = someNode.removeChild(someNode.firstChild);
+    // 删除最后一个子节点
+    let formerLastChild = someNode.removeChild(someNode.lastChild);
+
+    同replaceChild()方法一样，虽然被移除的节点从技术上来说仍然被同一个文档所拥有，但是文档中已经没有它的位置。
+
+3.移动节点
+可参考1，将文档中已存在的节点进行insertBefore()等操作
+
+4.复制节点
+cloneNode() 该方法会返回调用它的节点一模一样的节点，
+    该方法接收一个布尔值参数：
+    传入true时深复制，即复制节点及其整个子DOM树；
+    传入false时只会复制调用该方法的子节点。
+    复制返回的节点属于文档所有，但是尚未指定父节点，所以可称为孤儿节点（orphan）
+
+5.创建节点
+document.createElement() 方法接收一个参数，即要创建元素的标签名。（HTML文档中标签名不区分大小写）
+    
+    let div = document.createElement("div");
+
+    *注：使用createElement()方法创建新元素的同时也会将其ownerDocument属性设置为document
+        此时，可以再为其添加属性、添加更多子元素，如：
+
+        div.id = "myNewDiv";
+        div.className = "box";
+
+        在新元素上设置这些属性只会附加信息，因为这个元素还没有添加到文档树，所以不会影响浏览器显示。如：
+        document.body.appendChild(div);
+
+6.查找节点
+6.1 document.getElementById() 通过元素的id属性，唯一
+6.2 document.getElementsByTagName() 通过元素的标签名
+6.3 document.getElementsByName() 通过元素的Name属性的值
+6.4 document.documentElement 始终指向HTML页面中的<html>元素
+6.5 document.body 直接指向<body>元素
+6.6 document.doctype
+6.7特殊集合：
+    6.7.1 document.anchors 包含文档中所有带name属性的<a>元素
+    6.7.2 document.applets 包含文档中所有<applet>元素（该元素不建议使用，该集合废弃）
+    6.7.3 document.forms 包含文档中所有<form>元素
+    6.7.4 document.images 包含文档中所有<img>元素
+    6.7.5 document.links 包含文档中所有带href属性的<a>元素
+
+7.遍历节点
+7.1 NodeIterator类型
+    创建：
+        var aNodeIterator = document.createNodeIterator(root, whatToShow, filter, false)
+    方法：
+        aNodeIterator.nextNode()最先指向root，然后随遍历改变，即向前遍历的前方前进一步
+        还有一个previousNode()指向便利的前一个节点
+    参数：
+        root：遍历开始的根结点
+        whatToShow：想要访问的节点类型，如：NodeFilter.SHOW_ELEMENT表示元素节点类型
+        filter：一个表示拒绝还是接受的节点的某种函数（如：过滤掉所有标签不是div的元素节点的函数filterA）
+                或者一个包含acceptNode方法的NodeFilter对象（如：filterB）
+                或者为空（只让whatToShow参数去过滤）
+            // filterA:函数 
+            var filterA = function(node) {
+                return node.tagName.toLowerCase() == 'div' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+            }
+            // filterB:对象
+            var filterB = {
+                acceptNode: function(node) {
+                    return node.tagName.toLowerCase() == 'div' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+                }
+            }
+
+7.2 TreeWalker类型
+    创建：
+        var aTreeWalker = document.createTreeWalker(root, whatToShow, filter, false)
+    和NodeIterator的不同：
+        filter返回的NodeFilter.FILTER_REJECT会跳过遍历中之后的整个子树，
+        而在NodeIterator是和NodeFilter.FILTER_SKIP一样跳过当前结点。
+        TreeWalker可以通过下列方法在DOM延任何方向移动：
+        parentNode()//遍历到当前结点的父节点
+        firstChild()
+        lastChild()
+        nextSibling()
+        previousSibling()
+
+☆☆☆querySelector和getElementById方法的区别
+    querySelector 属于 W3C 中的 Selectors API 规范 。而 getElementsBy 系列则属于 W3C 的 DOM 规范
+    getXXXByXXX 获取的是动态集合，querySelector获取的是静态集合。
+    动态就是选出的元素会随文档改变，静态的不会，取出来之后就和文档的改变无关了
+
+☆☆☆document.querySelectorAll和document.querySelector区别
+    querySelector() 方法选择指定 CSS 选择器的第一个元素
+    querySelectorAll() 方法选择指定的所有元素
+
+☆☆☆NodeList和Array的区别
+NodeList是类数组对象，并不是Array实例，但可以通过中括号访问它的值，且有length属性
+
+☆☆☆NodeList转化为数组
+    let arrayOfNode = Array.prototype.slice.call(someNode.childNodes,0)
+
+    //ES6:
+    let arrayOfNode = Array.from(someNode.childNodes);
+
+☆☆☆获取页面内所有标签的方法
+1. JS递归实现
+    var map = {};
+    function fds(node) {
+        if(node.nodeType == 1) {
+            var tagName = node.nodeName;
+            map[tagName] = map[tagName] ? map[tagName]+1 : 1;
+        }
+        var children = node.childNodes;
+        for (var i = 0; i < children.length; i++) {
+            fds(children[i]);
+        }
+    }
+    fds(document);
+    console.log(map);
+2. JQ 
+    $("*");表示获取页面中所有的标签
