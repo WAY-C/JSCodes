@@ -166,6 +166,7 @@ js内置对象有哪些
         作为对象原型链的终点
         Object.getPrototypeOf(Object.prototype)
         // null
+        事件处理程序的属性设置为null用来移除通过DOM0方式添加的事件处理程序
 
         undefined表示缺少值，即此处应该有一个值，但是还没有被定义
         典型用法是：

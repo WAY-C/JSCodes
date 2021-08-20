@@ -1,0 +1,689 @@
+☆☆☆如何阻止事件冒泡和默认事件
+    --什么是事件冒泡
+        IE事件流
+        事件从最具体的元素（文档树中最深的节点）开始触发，然后向上传播至没有那么具体的元素（文档）
+    --什么是默认事件
+        如链接的默认行为就是在被单击时导航到href属性指定的URL
+        滑动滚轮控制滚动条
+    --如何阻止事件冒泡
+        // IE9+ 其他主流浏览器：
+        event.stopPropagation();
+        // 除火狐外(旧版本只有IE支持)
+        event.cancelBubble = true;
+        // 兼容的方法
+        function stopBubble(event) {
+            // 如果提供了事件对象，则这是个非IE浏览器
+            if (event && event.stopPropagation) {
+                // 因此它支持W3C的stopPropogation方法
+                event.stopPropagation();
+            } else {
+                // 否则我们需要用IE的方式来取消事件冒泡
+                window.event.cancelBubble = true;
+            }
+        }
+    --如何阻止默认事件
+        let link = document.getElementById("myLink");
+        link.onclick = function(event) {
+            event.preventDefalt();
+        }
+        任何可以通过preventDefault()取消默认行为的事件，事件对象的cancelable属性都会设置为true    
+☆☆☆Return false 和 event.preventDefault的区别
+    在事件处理函数中使用 return false; 
+    相当于同时调用了event.stopPropagation()和event.preventDefault()，
+    事件的默认行为不会被执行，事件也不会冒泡向上传递。
+☆☆☆事件代理、事件委托是什么？事件委托的缺点
+    利用事件冒泡，只使用一个事件处理程序来管理一种类型的事件
+    缺点是：
+        不支持不冒泡的事件
+        层级过多可能会在冒泡过程中被某一层阻止掉
+        如mouseover、mouseout等事件很难通过事件冒泡来得当处理，且需要经常计算元素位置
+☆☆☆事件模型/DOM事件流的具体实现机制、不同浏览器的差异
+    --事件模型
+        JS与HTML的交互是通过事件实现的，
+        事件代表文档或浏览器窗口中某个有意义的时刻，
+        可以使用仅在事件发生时执行的监听器（处理程序）订阅事件
+        在传统软件工程领域，这个模型叫“观察者模式”，
+        其能够做到页面行为（JS中定义）与页面展示（HTML和CSS中定义）的分离
+    --DOM事件流的具体实现机制：
+        事件捕获、到达目标、事件冒泡
+    --不同浏览器的差异
+        最初，IE支持事件冒泡流，Netscape Communicator支持事件捕获流
+        所有现代浏览器都支持DOM事件流，只有IE8及更早版本不支持
+        IE事件处理程序定义了与DOM类似的attachEvent()和detachEvent()方法
+☆☆☆DOM0和DOM2的区别
+    --DOM0：
+        把一个函数赋值给（DOM元素的）一个事件处理程序属性，必须先取得对象的引用。
+        所赋函数被视为元素的方法，因此事件处理程序会在元素的作用域中运行，this等于元素。
+        将事件处理程序属性的值赋值为null来移除
+        同时添加两个事件处理程序时忽略后者
+    --DOM2:
+        addEventListener()
+        removeEventListener()
+        这两个方法暴露在所有DOM节点上，接收三个参数：
+        事件名、事件处理函数、布尔值
+        true表示在捕获阶段调用事件处理程序，false（默认值）表示在冒泡阶段调用事件处理程序
+        使用addEventListener添加多个事件，事件的顺序就是按照我们程序写的顺序执行的。
+☆☆☆我们给一个dom同时绑定两个点击事件，一个用捕获，一个用冒泡，你来说下会执行几次事件，然后会先执行冒泡还是捕获
+    其他元素捕获阶段事件 -> 本元素代码顺序事件 -> 其他元素冒泡阶段事件 。
+☆☆☆document.write()用法，和innerHTML区别？
+    主要区别：
+        document.write是直接将内容写入页面的内容流，会导致页面全部重绘，
+        innerHTML将内容写入某个DOM节点，不会导致页面全部重绘
+    举例：
+        1.
+            页面有初始内容，
+            点击页面中的按钮向页面中通过document.write()方法写入内容，
+            会发现原先的初始内容消失了，
+            整个页面只剩下了通过write()方法写入的内容。
+            原因是整个页面进行了重绘
+        2.
+            页面有初始内容，在初始内容后面给定一个节点，
+            通过innerHTML向这个节点写内容，初始内容不消失，
+            通过innerHTML新增加的内容准确的显示在节点位置
+☆☆☆window.onload和$(document).ready区别？用原生实现
+    $(document).ready和window.onload都是在都是在页面加载完执行的函数，大多数情况下差别不大，但也是有区别的。
+    $(document).ready:
+        是DOM结构绘制完毕后就执行，不必等到加载完毕。
+        意思就是DOM树加载完毕，就执行，不必等到页面中图片或其他外部文件都加载完毕。并且可以写多个.ready。
+    window.onload:
+        是页面所有元素都加载完毕，包括图片等所有元素。只能执行一次。
+    //以下代码无法正确执行： 
+        2 window.onload = function()
+        3 { 
+        4 alert(“text1”); 
+        5 }; 
+        6 window.onload = function()
+        7 { 
+        8 alert(“text2”); 
+        9 }; 
+        10 //结果只输出第二个 能同时编写多个 
+    //以下代码正确执行： 
+        12 $(document).ready(function()
+        13 { 
+        14 alert(“Hello World”); 
+        15 }); 
+        16 $(document).ready(function()
+        17 { 
+        18 alert(“Hello again”); 
+        19 }); 
+    20 //结果两次都输出 
+☆☆☆attribute和property的区别是什么？
+    1、property和attributies都是properties的子集，而每个attribute是attributies的子集； 
+    2、attribute可以理解为特性，可以自定义，
+    直接在html标签上添加的和使用setAttribute添加的情况一致，即html标签添加的都是attribute属性， 
+    property则是使用xx.属性进行更改，通常来讲，更改互相影响（value除外） 
+    3、当添加新的非默认属性时，是不互通的； 
+    4、一些特殊属性，则需要特殊对待。
+    ————————————————
+    版权声明：本文为CSDN博主「zhy前端攻城狮」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+    原文链接：https://blog.csdn.net/zhy13087344578/article/details/79036967
+☆☆☆原生js添加class怎么添加，如果本身已经有class了，会不会覆盖，怎么保留？
+    // 1.手写一个indexOf，保证兼容性
+    function arrIndexOf(arr,ele) {
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === ele) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    // 2.添加class
+    function addClass(obj, newClass) {
+        // 如果本身没有class属性
+        if(obj.className == "") {
+            obj.className = newClass;
+        } else {
+            // 如果本身有class属性，看新添加的属性是否存在
+            let classArr = obj.className.split(" ");
+            let classIndex = arrIndexOf(classArr, newClass);
+            // 没有则添加，有则保留
+            if(classIndex == -1) {
+                obj.className = obj.className + " " + newClass;
+            }
+        }
+    }
+☆☆☆requestAnimationFrame这个API，说明这个API与setTimeout的异同
+    requestAnimationFrame是HTML5新增的API，类似于setTimeout，是一个window对象的方法
+    是浏览器专门为动画提供的API，让dom动画、canvas动画、svg动画有一个统一的刷新机制
+    特点是：
+        按帧对网页进行重绘
+        由系统决定回调函数的执行机制
+        通过回调函数引起的页面重绘或回流的时间间隔和显示器的刷新时间间隔相同
+    参数：
+        下一次重绘前更新动画帧所调用的函数
+    与setTimeout相同点：
+        都是在一定的时间间隔后执行回调函数
+    与setTimeout的不同点：
+        setTimeout可能不准时，动画作者对帧数没有掌控，当标签是隐藏状态时无谓消耗资源
+        若使用setInterval，它对自己调用的代码是否报错漠不关心，会继续调用
+        requestAnimationFrame性能更好，防止掉帧
+            setTimeout 通过设置一个间隔时间不断改变图像，达到动画效果。
+            该方法在一些低端机上会出现卡顿、抖动现象。这种现象一般有两个原因：
+            setTimeout 的执行时间并不是确定的。
+            刷新频率受屏幕分辨率和屏幕尺寸影响，不同设备的屏幕刷新率可能不同，
+            setTimeout 只能设置固定的时间间隔，这个时间和屏幕刷新间隔可能不同。
+            以上两种情况都会导致 setTimeout 的执行步调和屏幕的刷新步调不一致，从而引起丢帧现象。
+            使用 requestAnimationFrame 执行动画，
+            最大优势是能保证回调函数在屏幕每一次刷新间隔中只被执行一次，
+            这样就不会引起丢帧，动画也就不会卡顿。
+        节约资源，节省电源
+            使用 setTimeout 实现的动画，当页面被隐藏或最小化时，
+            定时器 setTimeout 仍在后台执行动画任务，
+            此时刷新动画是完全没有意义的
+            （实际上 FireFox/Chrome 浏览器对定时器做了优化：
+            页面闲置时，如果时间间隔小于 1000ms，则停止定时器，
+            与 requestAnimationFrame 行为类似。
+            如果时间间隔>=1000ms，定时器依然在后台执行）
+            
+            使用 requestAnimationFrame，当页面处于未激活的状态下，
+            该页面的屏幕刷新任务会被系统暂停，
+            由于 requestAnimationFrame 保持和屏幕刷新同步执行，
+            所以也会被暂停。
+            当页面被激活时，动画从上次停留的地方继续执行，节约 CPU 开销。
+☆☆☆如何在页面元素ul中一次性插入30000个li标签，保证页面体验流畅呢？
+1. 操作DOM元素逐个插入（低效、高耗、甚至闪屏卡屏影响用户体验）
+    <script>
+        var container = document.getElementById('container')
+        for(let i = 0; i < 10000; i++){
+            let li = document.createElement('li')
+            li.innerHTML = 'hello world'
+            container.appendChild(li);
+        }
+    </script>
+    使用这种方法效率会非常低，甚至会在页面出现闪屏、卡屏的现象。
+    因为每次调用appendChild()方法时，浏览器都会重新渲染页面。
+    如果大量的更新DOM节点，则会非常消耗性能，影响用户体验。
+2. 使用DocumentFragment文档片段
+    <script>
+        var container = document.getElementById('container')
+        //新建文档片段
+        var fragment = document.createDocumentFragment()
+        for(let i = 0; i < 10000; i++){
+            let li = document.createElement('li')
+            li.innerHTML = 'hello world'
+            fragment.appendChild(li)
+        }
+        //节点构造完成后再将文档片段对象加入页面
+        container.appendChild(fragment);
+    </script>
+    JavaScript提供了一个文档片段DocumentFragment的机制。
+    把所有要构造的节点都放在文档片段中执行，
+    这样可以不影响文档树，也就不会造成页面渲染。
+    当节点都构造完成后，再将文档片段对象添加到页面中，
+    这时所有的节点都会一次性渲染出来，这样就能减少浏览器负担，提高页面渲染速度。
+☆☆☆浏览器海量数据存储、操作性能优化
+    --cookie
+        作用： 
+            解决http无状态的缺点，在客户端存储会话信息，记录用户的状态
+            在客户端存储一些其他的数据
+        构成：
+            名称、值（字符串，被URL编码）、域、路径、失效时间、安全标志
+        缺点：
+            在客户端和服务器端来回传送，浪费不必要的资源
+            大小有限制，每个域一般只能设置20个，每个cookie大小一般限制在4KB
+            包含的任何数据都可以被他人访问，安全性较低
+    --userData（IE）
+        特性：
+            将数据写入一个userDataStore（用户数据存储区）来保存数据
+            将数据以XML格式保存在客户端上，数据将一直存在除非人为删除或用脚本设置了该数据的失效期
+            一般来说userData允许每个文档最多保存128KB数据，每个域名最多1MB数据
+        缺点：
+            只针对IE的数据存储
+            userData的访问限制和对cookie的访问限制一样，必须来自同一个域名，在同一个路径下，并使用与进行存储脚本同样的协议才能访问
+            同样不安全
+    --WEBStorage（WEB存储）
+        为了克服由cookie带来的一些限制，当数据需要被严格控制在客户端上时，
+        无须将数据在客户端和服务器之间来回的进行传送，
+        并且可以存储大量的跨会话的数据
+        ---sessionStorage
+            存储特定于某个会话的数据，数据只保存到浏览器关闭，但是可以跨越页面刷新而存在
+            使用setItem或直接赋值新的属性
+            特点：
+                同源策略限制：想要在不同页面之间对同一个sessionStorage进行操作
+                这些页面必须在同一协议、同一主机名和同一端口下
+                单标签页限制：sessionStorage操作限制在单个标签页中，在此标签页进行同源页面访问都可以共享sessionStorage数据
+                只在本地存储，不会跟随HTTP请求一起发送到服务器端，只会在本地生效，并在关闭标签页后失效
+                存储方式为key、value
+                存储上限限制：不同浏览器不同，大多限制在5MB以下
+        ---localStorage
+            持久保存客户端数据，取代了globalStorage
+            要访问同一个localStora对象，页面必须来自同一个域名，使用同一种协议，在同一个端口
+            使用方式同sessionStorage
+            特点：
+                可以将第一次请求的数据直接存储到本地，这个相当于5MB大小的针对于前端页面的数据库相比于cookie可以节约带宽
+                值类型被限定为String，对于常见的JSON类型需要一些转换
+                本质上是对字符串的读取，存储内容多的话会消耗内存空间，导致页面变卡
+    --indexDB
+        诞生背景：
+            现有的浏览器数据储存方案，都不适合储存大量数据：
+            Cookie 的大小不超过4KB，且每次请求都会发送回服务器；
+            LocalStorage 在 2.5MB 到 10MB 之间（各家浏览器不同），
+            而且不提供搜索功能，不能建立自定义的索引，
+            所以，需要一种新的解决方案，这就是 IndexedDB 诞生的背景
+        介绍：
+            通俗地说，IndexedDB 就是浏览器提供的本地数据库，
+            它可以被网页脚本创建和操作，IndexedDB 允许储存大量数据，提供查找接口，还能建立索引
+            类型来说，不属于关系型数据库，更贴近NoSQL
+        特点： 
+            键值对存储：indexDB内部采取对象仓库（ObjectStore）存放数据，
+                所有数据的类型都可以直接存入，包括JS对象
+                对象仓库中数据以键值对形式存在
+                每一个数据记录都有相应的主键，逐渐独一无二，重复时会报错
+            异步：indexDB操作时不会锁死浏览器，用户依然可以进行其他操作
+                异步设计是为了防止大量数据的读写拖慢网页的表现
+            支持事务：这意味着一系列操作中有一步失败整个事务都会取消，数据库回滚到事务发生前的状态
+        同源限制：每一个数据库对应创建它的域名，网页只能访问自身域名下的数据库，不能跨域访问
+        存储空间大：一般来说不少于250MB，有时甚至没有上限
+        支持二进制存储：indexDB不仅可以存储字符串，还可以存储二进制数据（ArrayBuffer对象和Blob对象）
+☆☆☆说说写JavaScript的基本规范？
+    不在同一行声明多个变量
+    使用===和!==来比较true、false或数值
+    使用对象字面量代替new Array这种形式
+    不要使用全局函数
+    switch语句必须带有default分支
+    for，if，else语句必须使用大括号
+    函数应该有返回值
+    语句结束加分号
+    命名有意义最好使用驼峰命名法，静态变量使用大写字母
+    for循环最好使用var声明变量来明确它的作用域
+☆☆☆什么是window对象? 什么是document对象?
+    BOM的核心是window对象，它表示浏览器的实例，既是ECMAScript的Global对象，也是浏览器窗口的JavaScript接口
+    简单来说，document是window对象的一个属性
+    一、指代不同
+    1、document对象：代表给定浏览器窗口中的 HTML 文档。
+    2、window对象：表示浏览器中打开的窗口。
+    二、作用不同
+    1、document对象：使用 document 对象可以对 HTML 文档进行检查、修改或添加内容，并处理该文档内部的事件。
+    2、window对象：浏览器会为 HTML 文档创建一个 window 对象，并为每个框架创建一个额外的 window 对象。
+    三、使用方式不同
+    1、document对象：在 Web 页面上，document 对象可通过 window 对象的 document 属性引用，或者直接引用。
+    2、window对象：没有应用于 window 对象的公开标准，不过所有浏览器都支持该对象。
+☆☆☆eval是做什么的
+    eval() 函数可计算某个字符串，并执行其中的的 JavaScript 代码。
+    该方法只接受原始字符串作为参数，
+    如果 string 参数不是原始字符串，那么该方法将不作任何改变地返回。
+    因此请不要为 eval() 函数传递 String 对象来作为参数。
+    如果试图覆盖 eval 属性或把 eval() 方法赋予另一个属性，并通过该属性调用它，
+    则 ECMAScript 实现允许抛出一个 EvalError 异常。
+☆☆☆js延迟加载的方式有哪些
+    1. defer 属性
+        HTML 4.01 为 <script>标签定义了 defer属性。
+        用途：表明脚本在执行时不会影响页面的构造。
+        也就是说，脚本会被延迟到整个页面都解析完毕（遇到</html>）之后再执行。
+        在<script> 元素中设置 defer 属性，等于告诉浏览器立即下载，但延迟执行。
+        如：
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src="test1.js" defer="defer"></script>
+            <script src="test2.js" defer="defer"></script>
+        </head>
+        <body>
+        <!-- 这里放内容 -->
+        </body>
+        </html>  
+        虽然<script> 元素放在了<head>元素中，但包含的脚本将延迟浏览器遇到</html>标签后再执行。
+        HTML5规范要求脚本按照它们出现的先后顺序执行。在现实当中，延迟脚本并不一定会按照顺序执行。
+        defer属性只适用于外部脚本文件。支持 HTML5 的实现会忽略嵌入脚本设置的 defer属性。
+    2. async 属性
+        HTML5 为 <script>标签定义了 async属性。与defer属性类似，都用于改变处理脚本的行为。
+        同样，只适用于外部脚本文件。
+        目的：不让页面等待脚本下载和执行，从而异步加载页面其他内容。
+        异步脚本一定会在页面 load 事件前执行。
+        不能保证脚本会按顺序执行。
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src="test1.js" async></script>
+            <script src="test2.js" async></script>
+        </head>
+        <body>
+        <!-- 这里放内容 -->
+        </body>
+        </html>  
+        async和defer一样，都不会阻塞其他资源下载，所以不会影响页面的加载。
+        缺点：不能控制加载的顺序
+    3.动态创建DOM方式
+        //这些代码应被放置在</body>标签前(接近HTML文件底部)
+        <script type="text/javascript">  
+        function downloadJSAtOnload() {  
+            varelement = document.createElement("script");  
+            element.src = "defer.js";  
+            document.body.appendChild(element);  
+        }  
+        if (window.addEventListener)  
+            window.addEventListener("load",downloadJSAtOnload, false);  
+        else if (window.attachEvent)  
+            window.attachEvent("onload",downloadJSAtOnload);  
+        else 
+            window.onload =downloadJSAtOnload;  
+        </script>  
+    4.使用setTimeout延迟方法
+    5.让JS最后加载
+    把js外部引入的文件放到页面底部，来让js最后引入，从而加快页面加载速度
+☆☆☆js中的use strict，好处坏处？严格模式下的限制有哪些？
+    设立"严格模式"的优点：
+        1. 消除Javascript语法的一些不合理、不严谨之处，减少一些怪异行为;
+        2. 消除代码运行的一些不安全之处，保证代码运行的安全；
+        3. 提高编译器效率，增加运行速度；
+        4. 为未来新版本的Javascript做好铺垫。
+        注：经过测试 IE6,7,8,9 均不支持严格模式。
+    缺点：
+        现在网站的 JS 都会进行压缩，一些文件用了严格模式，而另一些没有。
+        这时这些本来是严格模式的文件，被 merge 后，这个串就到了文件的中间，
+        不仅没有指示严格模式，反而在压缩后浪费了字节。
+    好处和一些限制：
+        1.使调试更加容易。
+            那些被忽略或默默失败了的代码错误，会产生错误或抛出异常，
+            因此尽早提醒你代码中的问题，你才能更快地指引到它们的源代码。
+        2.变量在赋值之前必须声明,防止意外的全局变量。
+            如果没有严格模式，将值分配给一个未声明的变量会自动创建该名称的全局变量。
+            这是JavaScript中最常见的错误之一。
+            在严格模式下，这样做的话会抛出错误。
+        3.取消this值的强制转换。
+            如果没有严格模式，引用null或未定义的值到 this 值会自动强制到全局变量。
+            在严格模式下，引用 null或未定义的 this 值会抛出错误。
+            严格模式下，this不会指向window 
+        4.不允许重复的属性名称或参数值。
+            当检测到对象中重复命名的属性，例如：
+                var object = {foo: "bar", foo: "baz"};
+                或检测到函数中重复命名的参数时,例如：
+                function foo(val1, val2, val1){}）
+                严格模式会抛出错误，因此捕捉几乎可以肯定是代码中的bug可以避免浪费大量的跟踪时间。
+        5.使 eval() 更安全。
+            在严格模式和非严格模式下， eval() 的行为方式有所不同。
+            最显而易见的是，在严格模式下，变量和
+            声明在 eval() 语句内部的函数不会在包含范围内创建
+            （它们会在非严格模式下的包含范围中被创建，这也是一个常见的问题源）。
+        6.不能使用with语句
+        7.不能对只读属性赋值
+        8.不能使用前缀0表示八进制数
+        9.不能删除不可删除的属性
+        10.eval和arguments不能被重新赋值
+        11.arguments不会自动反应函数的变化
+☆☆☆JavaScript有块作用域吗？
+    --什么是块作用域
+    ES6)中新增了块级作用域，
+    使用let声明的变量只能在块级作用域里访问，有“暂时性死区”的特性（也就是说声明前不可用）。
+    块作用域由 { } 包括，if语句和for语句里面的{ }也属于块作用域。
+    var定义的变量，没有块的概念，可以跨块访问, 不能跨函数访问。
+    let定义的变量，只能在块作用域里访问，不能跨块访问，也不能跨函数访问。
+    const用来定义常量，使用时必须初始化(即必须赋值)，只能在块作用域里访问，而且不能修改。
+JavaScript的作用域和作用域链?
+☆☆☆说说函数表达式和函数声明的区别
+    1.函数声明
+        函数声明以function关键字开头，
+        接着是必须的函数（变量）名和以逗号分隔的可选的参数列表，
+        再接着就是以大括号封装的函数体。
+        函数声明必须是一个单独的JavaScript语句。
+        必须含有函数名
+    2.函数表达式
+        在任何情况下都是其它JavaScript语句的一部分的函数被称为函数表达式。
+        （比如赋值表达式等号的右侧、函数的参数）
+        直接可以运算，函数表达式是直接可以被执行符号执行的
+    3.函数表达式与函数声明的比较
+        函数声明中函数名是必须的；（因为调用时是通过函数名来调用）
+        函数表达式中则是可选的；（比如函数表达式中可以将函数表达式赋给一个变量，通过变量名来访问）
+        函数声明放在任意位置都可以被调用；函数表达式，解析器只有在读到函数表达式所在那行的时候才执行
+        使用函数表达式的话，只有变量声明提升了——变量的初始化代码仍然在原来的位置。
+        使用函数声明的话，函数名称和函数体都提升了，
+        脚本中所有函数和函数中所有嵌套的函数都会在当前上下文中其他代码之前声明。
+        也就是说，可以在函数声明之前调用它
+        在函数的前面可以加上+-!可以让函数声明变成函数表达式
+☆☆☆函数声明提升，变量声明提升
+☆☆☆理解词法作用域和动态作用域
+    --什么是词法作用域，什么是动态作用域
+    静态作用域与动态作用域
+    因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。
+    而与词法作用域相对的是动态作用域，函数的作用域是在函数调用的时候才决定的。
+☆☆☆理解JavaScript的执行上下文栈，可以应用堆栈信息快速定位问题
+    1、什么是执行上下文：
+        简而言之，执行上下文就是当前JavaScript代码被解析和执行时所在环境的抽象概念，
+        JavaScript中运行任何的代码都是在执行上下文中运行。
+    2、执行上下文类型：
+    　　执行上下文总共有三种类型：
+        1）全局执行上下文
+            这是默认的、最基础的执行上下文。
+            不在任何函数中的代码都位于全局执行上下文中。
+            它做了两件事：1.  创建一个全局对象，在浏览器中这个对象就是window对象。
+            2. 将this指针指向这个全局对象。一个程序中只能存在一个全局执行上下文。
+        2）函数执行上下文
+            每次调用函数时，都会为该函数创建一个新的执行上下文。每
+            个函数都拥有自己的执行上下文，但是只有在函数被调用时才会被创建，
+            一个程序中可以存在任意数量的函数执行上下文，
+            每当一个新的执行上下文被创建，它都会按照特定的顺序执行一系列步骤。
+        3）Eval函数执行上下文
+            运行在eval函数中的代码也获得了自己的执行上下文，
+            但是JavaScript中不常用eval函数，这里不再详细叙述。
+    3、执行上下文生命周期：
+    执行上下文的生命周期包括三个阶段：创建阶段 -> 执行阶段 -> 回收阶段
+        1）创建阶段：
+            当函数被调用，但未执行任何其内部代码之前，会做三件事：
+                1.创建变量对象：首先初始化函数的参数 arguments ，提升函数声明和变量声明。
+                2.创建作用域链：在执行期上下文的创建阶段，作用域链是在变量对象之后创建的。
+                3.确定 this 指向
+        2）执行阶段：
+            执行变量赋值、代码执行
+        3）回收阶段：
+            执行上下文出栈等虚拟机回收执行上下文
+    4.执行上下文栈：
+        函数多了就有多个函数执行上下文，
+        每次调用函数创建一个新的执行上下文，
+        如何管理创建的那么多执行上下文？
+        JavaScript引擎创建了执行上下文栈来管理执行上下文，
+        可以把执行上下文栈认为是一个存储函数调用的栈结构，遵循先进后出的原则。
+☆☆☆this的原理以及几种不同使用场景的取值
+☆☆☆理解堆栈溢出和内存泄漏的原理，如何防止
+    1、内存泄露：是指申请的内存执行完后没有及时的清理或者销毁，占用空闲内存，
+                内存泄露过多的话，就会导致后面的程序申请不到内存。
+                因此内存泄露会导致内部内存溢出
+    2、堆栈溢出：是指内存空间已经被申请完，没有足够的内存提供了
+    3、在一些编程软件中，比如c语言中，需要使用malloc来申请内存空间，
+        再使用free释放掉，需要手动清除。
+        而js中是有自己的垃圾回收机制的，一般常用的垃圾收集方法就是标记清除。
+        标记清除法：
+            在一个变量进入执行环境后就给它添加一个标记：进入环境，
+            进入环境的变量不会被释放，因为只要“执行流”进入响应的环境，就可能用到他们。
+            当变量离开环境后，则将其标记为“离开环境”。
+    4、常见的内存泄露的原因：
+        全局变量引起的内存泄露
+        闭包
+        没有被清除的计时器
+    5、解决方法：
+        减少不必要的全局变量
+        减少闭包的使用（因为闭包会导致内存泄露）
+        避免死循环的发生
+☆☆☆如何处理循环的异步操作
+for循环里的异步操作如何处理？
+    1.改写成递归
+    2.自执行函数包裹异步函数
+    3.用let 声明i
+    4.async、await实现
+        var asyncFunc = function(arr, i) {
+            return new Promise(function(resolve, reject) {
+                setTimeout(function() {
+                    arr.push(i);
+                    console.log("index is : ", i);
+                    resolve();
+                }, 1000);
+            });
+        }
+        
+        var box5 = async function() {
+            var arr = [];
+            for (var i = 0; i < 5; i++) {
+                await asyncFunc(arr, i);
+            }
+            console.log(arr);
+        }
+        
+        box5();
+    使用promise，函数会等待他执行完才会继续执行下一行代码，相当于是同步代码
+☆☆☆理解模块化解决的实际问题，可列举几个模块化方案并理解其中原理
+    --什么是模块化
+    --什么时候用模块化
+☆☆☆js中上下文是什么,js有哪些函数能改变上下文,上下文和作用域的区别
+call和apply，bind()的区别和作用？使用场景有哪些？
+    改变改变函数的调用对象（this指向）
+    使用场景：
+        实现继承
+            function Animal(name) {
+                this.name = name;
+                this.showName = function () {
+                    console.log(this.name);
+                }
+            }
+            function Cat(name) {
+                Animal.call(this, name); 
+            }
+            var cat = new Cat('Black Cat');
+            cat.showName();
+        数组追加
+            var array1 = [1 , 2 , 3, 5];
+            var array2 = ["xie" , "li" , "qun" , "tsrot"];
+            Array.prototype.push.apply(array1, array2);
+            console.log(array1);
+        获取数组中的最大值和最小值
+            var num = [1,3,5,7,2,-10,11];
+            var maxNum = Math.max.apply(Math, num);
+            var minNum = Math.min.apply(Math, num);
+            console.log(maxNum); 
+            console.log(minNum); 
+        将伪数组转化为数组
+            var fakeArr = {0:'a',1:'b',length:2};
+            var arr1 = Array.prototype.slice.call(fakeArr);
+            console.log(arr1[0]); 
+            var arr2 = [].slice.call(fakeArr);
+            console.log(arr2[0]); 
+            arr1.push("c");
+            console.log(arr1); 
+        保存this变量
+            var foo = {
+                bar : 1,
+                eventBind: function(){
+                    var _this = this ;
+                    $('.someClass').on('click',function(event) {
+                        console.log(_this.bar);     
+                    });
+                }
+            }
+            var foo = {
+                bar : 1,
+                eventBind: function(){
+                    $('.someClass').on('click',function(event) {
+                        console.log(this.bar);      
+                    }.bind(this));
+                }
+            }
+☆☆☆谈谈你对闭包的理解，原理，为什么使用闭包，使用场景，它会有什么影响？开发中闭包的实际应用
+    引用了另一个函数作用域中的变量的函数，通常在嵌套函数中实现
+    原理：
+        因为闭包只有在被调用时才执行操作，
+        所以它可以被用来定义控制结构。
+        多个函数可以使用同一个环境，
+        这使得他们可以通过改变那个环境相互交流。
+    为什么使用闭包：
+        它的最大用处有两个，
+        一个是可以读取函数内部的变量，
+        另一个就是让这些变量的值始终保持在内存中，不会在f1调用后被自动清除。
+    使用场景：
+        （1）采用函数引用方式的setTimeout调用。 例如：
+            原生的setTimeout有一个缺陷，你传递的第一个函数不能带参数。即
+            setTimeout(func(parma),1000);
+            这样的语句是不生效的（不过在不同浏览器中有不同的错误，总之都无法达到预期效果
+            这时，我们就可以用闭包来实现这个效果了。
+            function func(param) {
+                return function() {
+                    alert(param);
+                }
+            }
+            var f = func(1)
+            setTimeout(f, 1000);
+        （2）将函数关联到对象的实例方法。
+        （3）封装相关的功能集。
+    影响：
+        通过使用闭包，我们可以做很多事情。
+        比如模拟面向对象的代码风格；更优雅、更简洁的表达出代码；
+        在某些方面提升代码的执行效率。
+☆☆☆new操作符具体做了什么？
+    new共经过了4几个阶段：
+    1.创建一个空对象
+    2.将这个空对象的原型，指向构造函数的prototype属性，构造函数中的this指向这个空对象
+    3.开始执行内部的代码。
+    4.如果该函数没有返回对象，则返回this
+        1.创建一个空对象
+        var obj = new Object();
+        2.设置原型链
+        obj.__proto__ = Func.prototype;
+        3.让Func中的this指向obj，并执行Func的函数体。
+        var result = Func.call(obj);
+        4、判断Func的返回值类型：
+        如果是值类型，返回obj。如果是引用类型，就返回这个引用类型的对象。
+        if (typeof(result) == "object") {
+            func = result;
+        } else {
+            func = obj;
+        }
+☆☆☆给你一个空函数，加new和不加new的区别
+    1. 没有new的构造函数就是一个普通函数,this指向的window，返回值就是构造函数的返回结果。
+    并且不管return的是基本数据类型还是引用类型，都会原样返回。
+    2. 有new的构造函数,默认返回this，而this指向实例化的对象。
+    并且如果return的是基本数据类型，那么忽视掉该return值，如果返回的是一个引用类型，那么返回该引用类型。
+☆☆☆全局属性
+    属性	        描述
+    Infinity	代表正的无穷大的数值。
+    NaN	        指示某个值是不是数字值。
+    undefined	指示未定义的值。
+☆☆☆for函数里面setTimeout异步问题(如何使用setTimeout每隔1秒输出for循环里的i)闭包
+    1.改写成递归
+    2.自执行函数包裹异步函数
+    3.用let 声明i
+    4.async、await实现
+☆☆☆setInterval需要注意的点，使用settimeout实现setInterval
+    setInterval需要注意的点
+        setInterval() 间隔指定的毫秒数不停地执行指定的代码。
+        window.setInterval() 方法可以不使用window前缀，直接使用函数 setInterval()。
+        setInterval() 第一个参数是函数（function），第二个参数是间隔的毫秒数。
+        注意： 是不停地执行指定的代码，如果你没有清除这个 setInterval ，那么它将会按照你所设置的间隔时间不停地运行所指定的代码。
+        下面这段代码表示每隔3000毫秒便执行一次myf函数。
+        setInterval(myf, 3000);
+        function myf(){
+            a++;
+            $("#toolbar").append('<p>这是第' + a + '次自增</p>');
+        }
+        注意：setInterval 括号中调用的方法不需要加(),如果加了，那么运行到 setInterval 的时候是不会起作用的，不过会帮你运行一次所调用的方法。
+        下面这段代码也能与上面那段起到相同的作用。
+        setInterval(function () {
+            a++;
+            $("#toolbar").append('<p>这是第' + a + '次自增</p>');
+        }, 3000);
+        利用 clearInterval() 可以停止 setInterval() 方法执行的函数代码。
+        window.clearInterval() 方法可以不使用window前缀，直接使用函数 clearInterval()。
+        要使用 clearInterval() 方法，在创建 setInterval() 时你必须使用变量来承载它，
+        而这个变量可以设置为全局变量，也可以设置为局部变量，这需要根据 clearInterval() 方法来定义，
+        只要能保证 clearInterval() 方法能够检索到这个变量就行。
+    使用settimeout实现setInterval
+        function makeSetInterval(start) {
+            if(start) {
+                setTimeout(() => {
+                    console.log(new Date());
+                    makeSetInterval(start);
+                }, 1000);
+            }
+            else {
+                console.log('停止运行')
+            }
+        }
+        makeSetInterval(true);
+
+        // 简化版
+        timerFun();
+
+        function timerFun(){
+            console.log('要执行的操作');
+            let timer=setTimeout(function(){
+                timerFun();
+                clearTimeout(timer)
+            },1000);
+        }
+☆☆☆JavaScript异常处理的方式，统一的异常处理方案
