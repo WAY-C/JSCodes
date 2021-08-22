@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX POST 请求</title>
+    <style>
+        #result {
+            width: 200px;
+            height: 100px;
+            border: solid 1px #906;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="result"></div>
+    <script>
+        // 获取元素对象
+        const result = document.getElementById("result");
+        // 绑定事件
+        result.addEventListener('mouseover', function() {
+            //1.创建对象
+            const xhr = new XMLHttpRequest();
+            // 2.初始化，设置类型和URL
+            xhr.open('POST', 'http://127.0.0.1:8000/server');
+            //2.5 设置请求头信息
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            //可以自定义类型
+            //需要在server.js -> app.post回调函数中添加：
+            // response.setHeader('Access-Control-Allow-Headers','*');
+            // 并将app.post改为app.all
+            // xhr.setRequestHeader('name','waylon');
+
+            // 3.发送
+            // POST请求在send中设置 格式任意
+            // xhr.send('a=100&b=200&c=300');
+            // xhr.send('a:100&b:200&c:300');
+            xhr.send('1233121234567');
+            // xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        result.innerHTML = xhr.response;
+                        console.log(xhr.response);
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
