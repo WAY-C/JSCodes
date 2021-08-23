@@ -1,0 +1,82 @@
+AJAX原理
+    Ajax的原理简单来说通过XmlHttpRequest对象来向服务器发异步请求，从服务器获得数据，然后用javascript来操作DOM而更新页面。这其中最关键的一步就是从服务器获得请求数据。要清楚这个过程和原理，我们必须对 XMLHttpRequest有所了解。
+
+　XMLHttpRequest是ajax的核心机制，它是在IE5中首先引入的，是一种支持异步请求的技术。简单的说，也就是javascript可以及时向服务器提出请求和处理响应，而不阻塞用户。达到无刷新的效果。
+
+  　所以我们先从XMLHttpRequest讲起，来看看它的工作原理。
+
+  　首先，我们先来看看XMLHttpRequest这个对象的属性。
+
+  　　它的属性有：
+
+  　　onreadystatechange  每次状态改变所触发事件的事件处理程序。
+
+  　　responseText     从服务器进程返回数据的字符串形式。
+
+  　　responseXML    从服务器进程返回的DOM兼容的文档数据对象。
+
+  　　status           从服务器返回的数字代码，比如常见的404（未找到）和200（已就绪）
+
+  　　status Text       伴随状态码的字符串信息
+
+  　　readyState       对象状态值
+
+　　　　0 (未初始化) 对象已建立，但是尚未初始化（尚未调用open方法）
+
+　　　　1 (初始化) 对象已建立，尚未调用send方法
+
+　　　　2 (发送数据) send方法已调用，但是当前的状态及http头未知
+
+　　　　3 (数据传送中) 已接收部分数据，因为响应及http头不全，这时通过responseBody和responseText获取部分数据会出现错误，
+
+　　　　4 (完成) 数据接收完毕,此时可以通过通过responseXml和responseText获取完整的回应数据
+创建AJAX的过程
+Ajax的优缺点
+    --优点：
+        无需刷新页面就可以与服务器端进行通信
+        允许根据用户事件来更新部分页面内容
+    --缺点：
+        没有浏览历史，不能回退
+        存在跨域问题（同源）
+        SEO（SearchEngineOptimization）不友好
+手写原生ajax
+同步的AJAX怎么实现？
+使用POST发送文本给服务器
+同步和异步的区别
+ajax请求的时候get 和post方式的区别?
+fetch
+axios
+    特点：
+        从浏览器生成XMLHttpRequests
+        从node.js生成 http 请求
+        支持 Promise API
+        Intercept(截获)请求和响应
+        转换请求和相应数据
+        取消请求
+        为JSON数据自动转换
+        客户端支持防止XSRF(Cross-site request forgery 跨站请求伪造)
+        
+四种常见的 POST 提交数据方式（Content-Type）
+GET请求的编码类型
+JSON 的了解？
+JSON字符串转换为JSON对象（互转）
+qs.stringfy和JSON.stringfy的区别
+判断是否是数组
+数组去重的方法
+可以改变原数组的方法
+不可以改变原数组的方法
+es5的数组的方法
+se6的数组的方法
+数组遍历&中断
+稀疏数组(数组空位)
+一下什么是javascript的同源策略？
+为什么要有同源限制？为什么要有跨域的限制？没有跨域的限制会怎么样？
+那些操作会有跨域的限制？
+如何解决跨域问题
+【JSONP】
+JSONP的优缺点
+跨域JSONP前后端有什么约定吗
+【CORS】
+【通过修改document.domain来跨子域】
+【window.name跨域】
+【HTML5提供的window.postMessage()】

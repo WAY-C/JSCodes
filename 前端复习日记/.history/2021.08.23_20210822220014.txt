@@ -1,0 +1,21 @@
+判断是否是数组
+数组去重的方法
+可以改变原数组的方法
+不可以改变原数组的方法
+es5的数组的方法
+se6的数组的方法
+数组遍历&中断
+稀疏数组(数组空位)
+如何解决跨域问题
+    1.response 添加 header
+    2.JSONP 方式
+    3.HttpClient 请求转发
+    4.nginx 转发
+    https://www.cnblogs.com/ysocean/p/9380551.html
+【JSONP】
+JSONP的优缺点
+跨域JSONP前后端有什么约定吗
+【CORS】
+【通过修改document.domain来跨子域】
+【window.name跨域】
+【HTML5提供的window.postMessage()】

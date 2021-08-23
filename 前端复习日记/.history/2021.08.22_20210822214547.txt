@@ -1,0 +1,177 @@
+AJAX原理
+    Ajax的原理简单来说通过XmlHttpRequest对象来向服务器发异步请求，
+    从服务器获得数据，然后用javascript来操作DOM而更新页面。
+    这其中最关键的一步就是从服务器获得请求数据。
+    要清楚这个过程和原理，我们必须对 XMLHttpRequest有所了解。
+    
+    XMLHttpRequest是ajax的核心机制，
+    它是在IE5中首先引入的，是一种支持异步请求的技术。
+    简单的说，也就是javascript可以及时向服务器提出请求和处理响应，
+    而不阻塞用户。达到无刷新的效果。
+
+  　所以我们先从XMLHttpRequest讲起，来看看它的工作原理。
+  　首先，我们先来看看XMLHttpRequest这个对象的属性。
+  　　它的属性有：
+  　　onreadystatechange  每次状态改变所触发事件的事件处理程序。
+  　　responseText     从服务器进程返回数据的字符串形式。
+  　　responseXML    从服务器进程返回的DOM兼容的文档数据对象。
+  　　status           从服务器返回的数字代码，比如常见的404（未找到）和200（已就绪）
+  　　status Text       伴随状态码的字符串信息
+  　　readyState       对象状态值
+        0 (未初始化) 对象已建立，但是尚未初始化（尚未调用open方法）
+        1 (初始化) 对象已建立，尚未调用send方法
+        2 (发送数据) send方法已调用，但是当前的状态及http头未知
+        3 (数据传送中) 已接收部分数据，因为响应及http头不全，这时通过responseBody和responseText获取部分数据会出现错误，
+        4 (完成) 数据接收完毕,此时可以通过通过responseXml和responseText获取完整的回应数据
+
+创建AJAX的过程
+    创建一个XMLHttpRequest对象
+    检查XMLHttpRequest的整体状态并且保证它已经完成（readyStatus=4），即数据已经发送完毕。
+    然后根据服务器的设定询问请求状态，
+    如果一切已经就绪（status=200），
+    那么就执行下面需要的操作。
+    对于XmlHttpRequest的两个方法，open和send，其中open方法指定了：
+        a、向服务器提交数据的类型，即post还是get。
+        b、请求的url地址和传递的参数。
+        c、传输方式，false为同步，true为异步。
+            默认为true。
+            如果是异步通信方式(true)，客户机就不等待服务器的响应；
+            如果是同步方式(false)，客户机就要等到服务器返回消息后才去执行其他操作。
+            我们需要根据实际需要来指定同步方式，在某些页面中，可能会发出多个请求，
+            甚至是有组织有计划有队形大规模的高强度的request，
+            而后一个是会覆盖前一个的，这个时候当然要指定同步方式。
+    Send方法用来发送请求。
+Ajax的优缺点
+    --优点：
+        无需刷新页面就可以与服务器端进行通信
+        使用异步方式与服务器通信，不需要打断用户操作，具有更加迅速的响应能力
+        允许根据用户事件来更新部分页面内容
+        可以把以前一些服务器负担的工作转嫁到客户端，利用客户端闲置的能力来处理，减轻服务器和带宽的负担，节约空间和宽带租用成本。
+        基于标准化的并被广泛支持的技术，不需要下载插件或者小程序
+    --缺点：
+        没有浏览历史，不能回退
+        安全问题
+            ajax的逻辑可以对客户端的安全扫描技术隐藏起来，允许黑客从远端服务器上建立新的攻击。
+            还有ajax也难以避免一些已知的安全弱点，诸如跨站点脚步攻击、SQL注入攻击和基于credentials的安全漏洞等。
+        存在跨域问题（同源）
+        SEO（SearchEngineOptimization）不友好，对搜索引擎的支持较弱
+        破坏了程序的异常机制。至少从目前看来，像ajax.dll，ajaxpro.dll这些ajax框架是会破坏程序的异常机制的。
+        违背了url和资源定位的初衷
+手写原生ajax
+    见AJAX文件夹下nativeAJAX目录
+同步的AJAX怎么实现？
+    send()方法第三个参数设置为true
+使用POST发送文本给服务器
+    在send方法中传递参数
+同步和异步的区别
+    如果是异步通信方式(true)，客户机就不等待服务器的响应；
+    如果是同步方式(false)，客户机就要等到服务器返回消息后才去执行其他操作。
+    我们需要根据实际需要来指定同步方式，在某些页面中，可能会发出多个请求，
+    甚至是有组织有计划有队形大规模的高强度的request，
+    而后一个是会覆盖前一个的，这个时候当然要指定同步方式。
+ajax请求的时候get 和post方式的区别?
+    1、 get是把参数数据队列加到提交表单的ACTION属性所指的URL中，值和表单内各个字段一一对应，在URL中可以看到。post是通过HTTP post机制，将表单内各个字段与其内容放置在HTML HEADER内一起传送到ACTION属性所指的URL地址。用户看不到这个过程。
+    2、 对于get方式，服务器端用Request.QueryString获取变量的值，对于post方式，服务器端用Request.Form获取提交的数据。两种方式的参数都可以用Request来获得。
+    3、get传送的数据量较小，不能大于2KB。post传送的数据量较大，一般被默认为不受限制。但理论上，因服务器的不同而异.
+    4、get安全性非常低，post安全性较高。
+    5、 <form method="get" action="a.asp?b=b">跟<form method="get" action="a.asp">是一样的，也就是说，action页面后边带的参数列表会被忽视；而<form method="post" action="a.asp?b=b">跟<form method="post" action="a.asp">是不一样的。
+    另外
+    Get请求有如下特性：它会将数据添加到URL中，通过这种方式传递到服务器，通常利用一个问号？代表URL地址的结尾与数据参数的开端，后面的参数每一个数据参数以“名称=值”的形式出现，参数与参数之间利用一个连接符&来区分。
+    Post请求有如下特性：数据是放在HTTP主体中的，其组织方式不只一种，有&连接方式，也有分割符方式，可隐藏参数，传递大批数据，比较方便。
+    总而言之：当我们在提交表单的时候我们通常用post方式,当我们要传送一个较大的数据文件时,需要用post。当传递的值只需用参数方式(这个值不大于2KB)的时候,用get方式即可。
+    所以对于ajax提交两者用法自然就明了了。
+fetch
+    fetch api是基于promise的设计，它是为了取代传统xhr的不合理的写法而生的。
+
+    举例：
+        const btn = document.getElementsByTagName('button')[0];
+        btn.onclick = () => {
+            fetch('http://127.0.0.1:8000/fetch-server', {
+                // 请求方法
+                method: 'POST',
+                // 请求头
+                headers: {
+                    name: 'waylon'
+                },
+                // 请求体
+                body: "username=admin&password=admin"
+            }).then(response => {
+                // console.log(response);
+                return response.text();
+                // return response.json();
+            }).then(response => {
+                console.log(response);
+            });
+        };
+axios
+    特点：
+        从浏览器生成XMLHttpRequests
+        从node.js生成 http 请求
+        支持 Promise API
+        Intercept(截获)请求和响应
+        转换请求和相应数据
+        取消请求
+        为JSON数据自动转换
+        客户端支持防止XSRF(Cross-site request forgery 跨站请求伪造)
+        
+四种常见的 POST 提交数据方式（Content-Type）
+    1.application/x-www-form-urlencoded
+        浏览器的原生 <form> 表单，如果不设置 enctype 属性，
+        那么最终就会以 application/x-www-form-urlencoded 方式提交数据。
+        e.g.
+        POST http://www.example.com HTTP/1.1
+        Content-Type: application/x-www-form-urlencoded;charset=utf-8
+        
+        title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3
+        
+        首先，Content-Type 被指定为 application/x-www-form-urlencoded；
+        其次，提交的数据按照 key1=val1&key2=val2 的方式进行编码，key 和 val 都进行了 URL 转码。
+        大部分服务端语言都对这种方式有很好的支持。
+        例如 PHP 中，$_POST['title'] 可以获取到 title 的值，$_POST['sub'] 可以得到 sub 数组。
+        很多时候，我们用 Ajax 提交数据时，也是使用这种方式。
+        例如 JQuery 和 QWrap 的 Ajax，Content-Type 默认值都是「application/x-www-form-urlencoded;charset=utf-8」
+    2.multipart/form-data
+        我们使用表单上传文件时，必须让 <form> 表单的 enctype 等于 multipart/form-data
+        e.g.
+        POST http://www.example.com HTTP/1.1
+        Content-Type:multipart/form-data; boundary=----WebKitFormBoundaryrGKCBY7qhFd3TrwA
+        
+        ------WebKitFormBoundaryrGKCBY7qhFd3TrwA
+        Content-Disposition: form-data; name="text"
+        
+        title
+        ------WebKitFormBoundaryrGKCBY7qhFd3TrwA
+        Content-Disposition: form-data; name="file"; filename="chrome.png"
+        Content-Type: image/png
+        
+        PNG ... content of chrome.png ...
+        ------WebKitFormBoundaryrGKCBY7qhFd3TrwA--
+
+        上面提到的这两种 POST 数据的方式，都是浏览器原生支持的，而且现阶段标准中原生 <form> 表单也只支持这两种方式
+    3.application/json
+    4.text/xml
+        XML-RPC（XML Remote Procedure Call）。
+        它是一种使用 HTTP 作为传输协议，XML 作为编码方式的远程调用规范。
+        XML-RPC 协议简单、功能够用，各种语言的实现都有。
+        它的使用也很广泛，如 WordPress 的 XML-RPC Api，
+        搜索引擎的 ping 服务等等。JavaScript 中，也有现成的库支持以这种方式进行数据交互，
+        能很好的支持已有的 XML-RPC 服务。
+        不过，我个人觉得 XML 结构还是过于臃肿，一般场景用 JSON 会更灵活方便。
+
+GET请求的编码类型
+
+JSON 的了解？
+JSON字符串转换为JSON对象（互转）
+qs.stringfy和JSON.stringfy的区别
+
+一下什么是javascript的同源策略？
+为什么要有同源限制？为什么要有跨域的限制？没有跨域的限制会怎么样？
+那些操作会有跨域的限制？
+如何解决跨域问题
+【JSONP】
+JSONP的优缺点
+跨域JSONP前后端有什么约定吗
+【CORS】
+【通过修改document.domain来跨子域】
+【window.name跨域】
+【HTML5提供的window.postMessage()】

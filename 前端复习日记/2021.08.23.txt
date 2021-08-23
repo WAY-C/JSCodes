@@ -1,0 +1,215 @@
+判断是否是数组
+    1. instanceof
+        检验构造函数的prototype是否出现在对象的原型链中的任何位置，返回一个布尔值
+        e.g.
+        let a = [];
+        a instanceof Array;//true
+        let b = {};
+        b instanceof Array;//false
+
+        缺点：prototype属性是可修改的
+            当脚本拥有多个全局环境时，例如html中有多个iframe对象，instanceof的结果会有偏颇
+    2. constructor
+        实例的构造函数属性constructor指向构造函数，通过该属性可判断实例是否为数组
+        e.g.
+        let a = [];
+        a.constructor === Array;//true
+
+        缺点：存在多个全局环境时不准确
+        e.g.
+        //为body创建并添加一个iframe标签
+        var iframe = document.createElement('iframe');
+        document.body.appendChild(iframe);
+        //取得iframe对象的构造数组方法
+        xArray = window.frames[window.frames.length-1].Array;
+        //通过构造函数获取一个实例
+        var arr = new xArray(1,2,3); 
+        arr.constructor === Array;//false
+    3. Object.prototype.toString.call()
+        返回[object array]则为数组
+    4. Array.isArray()
+        用于确定传递的值是否是一个数组，返回一个布尔值
+        缺点：ES5才提出，存在兼容性问题，可结合方法3自己封装
+        if(!Array.isArray) {
+            Array.isArray = function(arg) {
+                return Object.prototype.toString.call(arg) === '[object Array]';
+            };
+        }
+
+数组去重的方法
+    可以改变原数组的方法
+    1.双层循环splice去重
+        for(var i = 0; i < arr.length; i++) {
+            for(var j = i+1; j < arr.length; j++) {
+                if(arr[i]===arr[j]) {
+                //if(arr[i]==arr[j])
+                    arr.splice(j,1);
+                    j--;
+                }
+            }
+        }
+        ===判断时，可以保留字符串"true"和布尔true，保留一个null
+        ==判断时字符串"true"和布尔true只保留其1（保留靠前的那个），null会消失
+        都无法去重NAN和空对象{}
+    2.利用sort 先对原数组排序，再遍历查看相邻数组，若不同则push进新数组
+
+    不可以改变原数组的方法
+    1.ES6 Set对象
+        let newArr = Array.from(new Set(arr));
+        缺点：无法去除空对象: {}
+    2.利用indexOf
+        新建一个空的结果数组，for 循环原数组，判断结果数组是否存在当前元素，
+        如果有相同的值则跳过，不相同则push进数组。
+        NaN和空对象{}不去重
+    3.利用对象的属性不能相同（有问题，慎用，但能去重NaN和空对象{}）
+      且object的键只能是string或symbol
+        var arrry= [];
+        var  obj = {};
+        for (var i = 0; i < arr.length; i++) {
+            if (!obj[arr[i]]) {
+                arrry.push(arr[i])
+                obj[arr[i]] = 1
+            } else {
+                obj[arr[i]]++
+            }
+        }
+        true直接被去掉
+    4.利用includes 它检测数组是否拥有某个值
+        var array =[];
+        for(var i = 0; i < arr.length; i++) {
+            if( !array.includes( arr[i]) ) {//includes 检测数组是否有某个值
+                array.push(arr[i]);
+            }
+        }
+        NaN可以去重，无法去重空对象{}
+    5.利用hasOwnProperty()
+        function unique(arr) {
+            var obj = {};
+            return arr.filter(function(item, index, arr){
+                return obj.hasOwnProperty(typeof item + item) ? false : (obj[typeof item + item] = true)
+                // 判断obj是否有键名为当前元素属性+元素值的属性，
+                // 若已有则跳过
+                // 若没有则新建这个属性并设置为true
+            })
+        }
+        所有的都去重了
+    6.利用filter()与indexOf()
+        function unique(arr) {
+            return arr.filter(function(item, index, arr) {
+                //当前元素，在原始数组中的第一个索引==当前索引值，否则返回当前元素
+                return arr.indexOf(item, 0) === index;
+            });
+        }
+
+es5的数组的方法
+    concat( )：数组合并。concat() 方法不会更改现有数组。它总是返回一个新数组
+    join( )：数组转字符串。
+    pop( )：删除最后一个元素。
+    push( )：数组向后添加。
+    unshift( )：数组向前添加。
+    reverse( )：数组翻转。
+    shift( )：删除第一个元素。
+    slice( )：数组元素的截取，返回一个新数组，新数组是截取的元素，可以为负值。
+    sort( )：对数组元素进行排序；
+    splice( )：删除元素，并向数组添加新元素；
+    toString( )：数组转字符串；
+    toLocaleString( )：将数组转换为本地数组。
+    forEach( )：数组进行遍历；
+    map( )：没有return时，对数组的遍历。有return时，返回一个新数组，该新数组的元素是经过过滤(逻辑处理)过的函数。
+    filter( )：筛选。
+    every( )：当数组中每一个元素在callback上被返回true时就返回true。
+        （注：every其实类似filter，只不过它的功能是判断是不是数组中的所有元素都符合条件，并且返回的是布尔值）。
+    some( )：当数组中有一个元素在callback上被返回true时就返回true。
+    reduce( )：回调函数中有4个参数。prev（之前计算过的值），next（之前计算过的下一个的值），index，arr。
+            把数组列表计算成一个单一值 。
+se6的数组的方法
+    from()
+    of(): 优化构造方法，将参数依次转化为数组中的一项，然后返回这个新数组，如果没有参数，就返回一个空数组。
+    copyWithin(target, start = 0, end = this.length):三个参数分别表示从当前位置开始替换、读取、停止读取，举例：
+        ['a','b','c','d','e','f','g'].copyWithin(0, 3)
+        //  ["d", "e", "f", "g", "e", "f", "g"]
+        // 将从 3 号位 直到数组结束的成员（'d','e','f','g'），复制到从 0 号位开始的位置，结果覆盖了原来的 'a' 和 'b' 。
+    fill():用给定值填充一个数组，数组中已有的元素会被全部抹去，还可以接受第二个和第三个参数，用于指定填充的起始位置和结束位置。
+    find():返回数组中第一个满足条件的元素（如果有的话），没有则返回undefined，find方法的回调
+            函数可以接受三个参数，依次为当前的值、当前的位置和原数组
+    findIndex()：与find类似，不过返回的的是索引值（下标），如果没有则返回-1
+    includes(): 方法返回一个布尔值，表示某个数组是否包含给定的值
+    entries、keys、values：它们都返回一个遍历器对象，都可以用 for...of 循环进行遍历。
+        唯一的区别是 keys 是对键名的遍历、 values 是对键值的遍历， entries 是对键值对的遍历。
+    flat(): "拍平"数组，参数默认为1，可以设为Infinity来拍平任意维数组
+    flatMap():对原数组的每个成员执行一个函数（相当于Array.prototype.map），然后对返回值或组成的数组
+                执行flat(1)(只能展开一层数组)
+数组遍历&中断
+    for:
+        break; // 中断
+        continue; // 跳过本次，继续下次
+    for...in：
+        同for
+    for...of：
+        同for
+    array.forEach()：
+        无break和continue，return会中断后续操作
+    array.map():
+        同forEach，但返回的是一个数组
+稀疏数组(数组空位)
+
+如何解决跨域问题
+    1.response 添加 header
+    2.JSONP 方式
+    3.HttpClient 请求转发
+    4.nginx 转发
+    https://www.cnblogs.com/ysocean/p/9380551.html
+【JSONP】
+借助script标签实现AJAX
+JSONP的优缺点
+    优点：
+        1.可跨越同源策略
+        2.兼容性更好，不需要XMLHttpRequest或者ActiveX的支持
+        3.请求完毕后可以通过调用callback的方式回传结果。将回调方法的权限给了调用方
+    缺点：
+        1.只支持GET请求而不支持POST等其它类型的HTTP请求
+        2.只支持跨域HTTP请求这种情况，不能解决不同域的两个页面之间如何进行JavaScript调用的问题
+        3.jsonp在调用失败的时候不会返回各种HTTP状态码
+        4.不安全，假如提供jsonp的服务存在页面注入漏洞，即它返回的javascript的内容被人控制的。
+跨域JSONP前后端有什么约定吗
+    1.dataType:"jsonp"  dataType 属性必须设置正确 "jsonp"
+    2.jsonp:属性需要设置与后台约定的参数，如果不设置默认也为callback。
+【CORS】
+跨域资源共享，克服了AJAX只能同源使用的限制。
+常用的有：
+    Access-Control-Allow-Origin
+    Access-Control-Allow-Credentials
+    Access-Control-Expose-Headers
+    等
+【通过修改document.domain来跨子域】
+前提条件：这两个域名必须属于同一个基础域名!而且所用的协议，端口都要一致，否则无法利用document.domain进行跨域
+比如在：aaa.com的一个网页（a.html）里面利用iframe引入了一个bbb.com里的一个网页（b.html）。
+这时在a.html里面可以看到b.html里的内容，但是却不能利用javascript来操作它。
+因为这两个页面属于不同的域，在操作之前，js会检测两个页面的域是否相等，如果相等，就允许其操作，如果不相等，就会拒绝操作。
+这里不可能把a.html与b.html利用JS改成同一个域的。因为它们的基础域名不相等。
+（强制用JS将它们改成相等的域的话会报跟上面一样的"参数无效错误。"）
+
+所以如果在a.html里引入aaa.com里的另一个网页，是不会有这个问题的，因为域相等。
+有另一种情况，两个子域名：aaa.xxx.com    bbb.xxx.com
+aaa里的一个网页（a.html）引入了bbb 里的一个网页（b.html），
+这时a.html里同样是不能操作b.html里面的内容的。
+因为document.domain不一样，一个是aaa.xxx.com，另一个是bbb.xxx.com。
+这时我们就可以通过Javascript，将两个页面的domain改成一样的，
+需要在a.html里与b.html里都加入：document.domain = "xxx.com";
+这样这两个页面就可以互相操作了。也就是实现了同一基础域名之间的"跨域"。
+
+对于主域相同而子域不同的例子，可以通过设置document.domain的办法来解决。
+具体的做法是可以在 http://www.a.com/a.html 和 http://script.a.com/b.html
+两个文件中分别加上document.domain = ‘a.com’；
+然后通过a.html文件中创建一个iframe，去控制iframe的contentDocument，这样两个js文件之间就可以“交互”了。
+当然这种办法只能解决主域相同而二级域名不同的情况，如果你异想天开的把script.a.com的domian设为alibaba.com那显然是会报错的
+【window.name跨域】
+
+【HTML5提供的window.postMessage()】
+otherWindow.postMessage(message, targetOrigin, [transfer]);
+otherWindow	    其他窗口的一个引用，比如 iframe 的 contentWindow 属性、
+                执行 window.open 返回的窗口对象、或者是命名过或数值索引的 window.frames。
+message	        将要发送到其他 window的数据。
+targetOrigin	指定哪些窗口能接收到消息事件，其值可以是 *（表示无限制）或者一个 URI。
+transfer	    可选，是一串和 message 同时传递的 Transferable 对象。
+                这些对象的所有权将被转移给消息的接收方，而发送一方将不再保有所有权。

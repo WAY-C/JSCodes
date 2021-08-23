@@ -1,0 +1,52 @@
+AJAX原理
+
+创建AJAX的过程
+Ajax的优缺点
+    --优点：
+        无需刷新页面就可以与服务器端进行通信
+        允许根据用户事件来更新部分页面内容
+    --缺点：
+        没有浏览历史，不能回退
+        存在跨域问题（同源）
+        SEO（SearchEngineOptimization）不友好
+手写原生ajax
+同步的AJAX怎么实现？
+使用POST发送文本给服务器
+同步和异步的区别
+ajax请求的时候get 和post方式的区别?
+fetch
+axios
+    特点：
+        从浏览器生成XMLHttpRequests
+        从node.js生成 http 请求
+        支持 Promise API
+        Intercept(截获)请求和响应
+        转换请求和相应数据
+        取消请求
+        为JSON数据自动转换
+        客户端支持防止XSRF(Cross-site request forgery 跨站请求伪造)
+        
+四种常见的 POST 提交数据方式（Content-Type）
+GET请求的编码类型
+JSON 的了解？
+JSON字符串转换为JSON对象（互转）
+qs.stringfy和JSON.stringfy的区别
+判断是否是数组
+数组去重的方法
+可以改变原数组的方法
+不可以改变原数组的方法
+es5的数组的方法
+se6的数组的方法
+数组遍历&中断
+稀疏数组(数组空位)
+一下什么是javascript的同源策略？
+为什么要有同源限制？为什么要有跨域的限制？没有跨域的限制会怎么样？
+那些操作会有跨域的限制？
+如何解决跨域问题
+【JSONP】
+JSONP的优缺点
+跨域JSONP前后端有什么约定吗
+【CORS】
+【通过修改document.domain来跨子域】
+【window.name跨域】
+【HTML5提供的window.postMessage()】
