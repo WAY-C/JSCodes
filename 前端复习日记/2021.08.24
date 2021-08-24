@@ -1,0 +1,520 @@
+从输入url到看到页面的过程发生了什么？
+    DNS解析->TCP连接->发送HTTP请求->服务器处理请求，返回http报文->浏览器下载、解析数据，渲染、呈现页面->关闭TCP连接
+    1.输入url
+    2.找到这个url域名的服务器IP：
+        （1）从缓存找（浏览器缓存->系统缓存->路由器缓存）
+        （2）若缓存中没有，则从系统的hosts文件中找
+        （3）若hosts文件中也没有，则查询DNS服务器
+    3.找到IP后根据此IP和相应的端口号构建一个HTTP请求
+        （该请求包括本次请求的信息：请求方法请求说明、请求附带的数据等）
+    4.将这个请求封装成一个TCP包
+        （经过 传输层、网络层、数据链路层、物理层后到达服务器）
+    5.服务器解析请求后做出响应，返回相应的html给浏览器
+    6.浏览器根据html来构建DOM树
+        （DOM树构建过程中如果遇到JS脚本或外部JS连接，会停止DOM树的构建，而先执行和下载相应的代码，
+        这会造成阻塞，所以推荐把JS代码放在html代码的后面）
+    7.根据内部样式、外部样式和内联样式来构建CSS对象模型数（CSSOM树）
+    8.CSSOM树构建完成后与DOM树合并为渲染树
+        （排除非视觉节点，如meta标签、script标签和display属性为none的节点等）
+    9.布局
+        （确定各个元素的位置和尺寸）
+    10.渲染页面（解析DOM的过程中遇到视频、图片、音频等资源并行下载（4--6个））
+    11.呈现页面
+    12.关闭TCP连接
+DNS是什么
+    DomainNameSystem，域名系统，是互联网的一项服务
+    它作为将域名和ip地址互相映射的一个分布式数据库，能够使人更方便地访问互联网
+    DNS使用UDP端口53，当前对于每一级域名长度的限制是63个字符，总长度则不超过253个字符
+TCP和UDP的区别
+    1   TCP                                             UDP
+    2   面向连接                                        无连接
+    3   提供可靠服务                                     尽最大努力交付，不保证可靠交付
+    4   （无差错，不丢失，不重复，按序到达，适合大数据量的交换）
+    5   面向字节流                                       面向报文（即便网络出现拥塞，不会使得发送速率降低）
+                                                        （因此会出现丢包，如IP电话、视频会议等）
+    6   只能1对1                                        支持1对1,1对多
+    7   首部较大，20字节                                   8字节
+
+TCP 状态标识
+    URG 紧急指针字段有效                        urgent
+    ACK 表示确认号字段有效                      acknowledgement
+    PSH 表示当前报文需要请求push操作            push
+    RST 表示复位TCP连接                         reset 
+    SYN 用于建立TCP连接时同步序号               synchronous
+    FIN 用于释放TCP连接时标识发送方比特流结束   finish
+DNS是用TCP协议还是UDP协议？
+    DNS占用端口53，TCP协议和UDP协议都使用
+    在区域传输时用TCP：
+        辅域名服务器会定时（一般是3小时）向主域名服务器进行查询，以便了解数据是否有变动
+        如有变动，则执行一次区域传送，进行数据同步，使用TCP而不是UDP
+        因为数据同步传送的数据量比一个请求应答的数据量要多得多
+        TCP是一种可靠连接，保证了数据的准确性
+    在域名解析时用UDP：
+        客户端向DNS查询域名，一般返回的内容都不超过512字节，用UDP协议传输即可
+        不用经过三次握手，这样DNS服务器负载更低，响应更快。
+        理论上，客户端也可以指定向DNS服务器查询时用TCP，但事实上，很多DNS服务器在配置时仅支持UDP查询包
+
+三次握手和四次握手的过程
+    三次握手
+        client(主动开启)                  server(被动开启)
+        CLOSED                           CLOSED
+                                         LISTEN
+        SYN-SENT        -->    
+                SYN = 1, seq = x
+                        <--              SYN-RCVD
+            SYN=1, ACK=1, seq = y, ack = x + 1
+        ESTABLISHED     -->
+            ACK = 1, seq = x + 1, ack = y + 1
+                                        ESTABLISHED
+                      <----->
+                      数据传输
+    
+        第一次握手：
+            起初两端都为CLOSED状态，server创建TCB，处于LISTEN状态，等待client请求
+            client创建TCB，client将SYN置为1，随机产生一个值seq=x，并将这个数据包发送给server
+            client进入SYN-SENT状态，等待server确认
+        第二次握手：
+            server收到数据包后由标志位SYN=1得知client请求建立连接，server将SYN和ACK都置为1，ack置为x+1
+            随机产生一个值seq=y，并将这个数据包发送给client以确认连接请求，
+            server进入SYN-RCVD状态，此时操作系统为该TCP连接分配TCP缓存和变量
+        第三次握手：
+            client收到确认后检查ack是否为x+1，ACK是否为1，如果正确，则将ACK置为1，ack置为y+1，
+            并且此时操作系统为该TCP连接分配TCP缓存和变量，并将该数据包发送给Server
+            server检查数据包ACK是否为1，ack是否为y+1，如果正确则连接建立成功，
+            client和server进入ESTABLISHED状态，完成三次握手，随后client和server之间即可开始传输数据
+
+    四次握手：
+        client                                              server
+        ESTABLISHED                                         ESTABLISHED
+                                <--->
+                            传输数据
+        FIN-WAIT1               --->
+                            FIN=1,seq=x
+                                <---                        CLOSED-WAIT
+                            ACK=1,seq=y,ack=x+1
+        FIN-WAIT2               <---
+                            数据传送
+                                <---                        LAST-ACK
+                            FIN=1,ACK=1,seq=w,ack=x+1
+        TIME-WAIT               --->
+                            ACK=1,seq=x+1,ack=w+1           CLOSED
+        等待2MSL后
+        CLOSED       
+
+        第一次握手：
+            client和server都处于ESTABLISHED状态，client发出连接释放请求报文段并处于FIN-WAIT1状态
+        第二次握手：
+            server发出确认报文段并处于CLOSED-WAIT状态
+        第三次握手：
+            client收到确认后进入FIN-WAIT2状态，等待server的连接释放报文段
+            server没有要向client发出的数据时，发出连接释放报文段并处于LAST-ACK状态
+        第四次握手：
+            client发出确认报文段并处于TIME-WAIT状态，server收到确认后处于CLOSED状态
+            client经过等待计时器时间2MSL后进入CLOSED状态
+常用http状态码
+    1xx：通知
+        100 Continue 通知客户端部分请求已被接受，应继续发送剩余部分，若请求已完成忽略这个响应，且服务器会在完成后发送一个最终结果
+        101 Switching Protocols
+    2xx：成功
+    ☆  200 OK 表示服务器已经成功接受请求，并将返回客户端所请求的最终结果
+    ☆  201 Created 请求成功，并且服务器依照客户端的请求创建了一个新资源。
+        202 Accepted 表示服务器已经接受了请求，但是还没有处理，而且这个请求最终会不会处理还不确定
+        203 Non-Authoritative Information
+    ☆  204 No content 若服务器拒绝对PUT、POST或者DELETE请求返回任何状态信息或表示，那么通常采用此响应代码。服务器也可以对GET请求返回此响应代码，这表明“客户端请求的资源存在，但其表示是空的”
+        205 Reset Content 
+        206 Partial Content     
+    3xx:重定向
+        300 Multiple Choices
+    ☆  301 Moved Permanently 客户端请求的网页已经永久移动到新的位置 请求的报文中会附带重定向的URL
+    ☆  302 Found 临时性重定向
+    ☆  303 See Other 临时性重定向，且总是使用 GET 请求新的 URI
+    ☆  304 Not Modified 自从上次请求后，请求的网页未修改过。可直接使用缓存。跟204类似：响应实体主体都必须为空。但204用于没有主体数据的情况，而304用于有主体数据，但客户端已拥有该数据，没必要重复发送的情况
+        305 Use Proxy
+        306 Unused
+    ☆  307 Temporary Redirect 请求还没有被处理，因为所请求的资源不在本地：它在另一个URI处。
+    4xx：客户端错误
+    ☆  400 Bad Request 告诉客户端它发送了一条异常请求,服务器收到通过PUT或者POST请求提交的表示，格式正确，但服务器不懂它什么意思
+    ☆  401 Unauthorized 未经授权，请求要求身份验证。 对于需要登录的网页，服务器可能返回此响应。
+        402 Payment Required 
+        403 Forbidden 禁止访问 服务器已经理解请求，但是拒绝执行它。与401不同的是，身份验证并不能提供任何帮助，且此请求也不应该被重复提交。
+    ☆  404 Not Found 请求失败，请求所希望得到的资源未被在服务器上发现。没有信息能够告诉用户这个状况到底是暂时的还是永久的。
+        405 Method Not Allowed 客户端试图使用一个本资源不支持的HTTP方法。如：一个资源只支持GET方法，但是客户端使用PUT方法访问。
+        406 Not Acceptable 当客户端对表示有太多要求，以至于服务器无法提供满足要求的表示
+        407 Proxy Authentication Required 无权访问代理
+        408 Reqeust Timeout
+    ☆  409 Conflict 请求的操作会导致服务器的资源处于一种不可能或不一致的状态。如试图修改某个用户的用户名，修改后与其他用户名冲突。
+        410 Gone 服务器知道被请求的URI过去曾指向一个资源，但该资源现在不存在了的情况 服务器不知道该资源的新URI
+        411 Length Required 应该把Content-Length请求报头的值设为该表示的长度（以字节为单位）
+        412 Precondition Failed 服务器不满足客户端在请求报头里指定一些前提条件
+        413 Request Entity Too Large 客户端发送的表示太大，以至于服务器无法处理
+        414 Request-URI Too Long
+        415 Unsupported Media Type 客户端在发送表示时采用了一种服务器无法理解的媒体类型
+        416 Requestd Range Not Satisfiable 客户端所请求的字节范围超出表示的实际大小时
+        417 Expectation Failed 跟100相反，当用LBYL请求考察服务器是否会接受表示时，服务器确认不会接受你的表示
+    5xx：服务端错误
+    ☆  500 Internal Server Error 通用的服务器错误响应。对于大多数web框架，执行请求处理代码时遇到异常，就发送此响应代码
+        501 Not Implemented 客户端试图使用一个服务器不支持的HTTP特性（服务器不能识别该方法）
+        502 Bad Gateway 只有HTTP代理会发送,表明代理方面出现问题，或者代理与上行服务器之间出现问题，而不是上行服务器本身有问题
+    ☆  503 Service Unavailable 服务器端暂时无法处理请求（可能是过载或维护）HTTP服务器正常，只是下层web服务不能正常工作 最可能的原因是资源不足
+        504("Gateway Timeout 此响应代码表明代理无法连接上行服务器
+        505 HTTP Version Not Supported 服务器不支持客户端试图使用的HTTP版本
+
+301和302的区别
+    当网页改变扩展名，或者移到了新的网址，如果不做重定向，用户收藏夹或者搜索引擎数据库中旧地址只能让访问者得到一个404的错误信息，
+    301 redirect: 301 代表永久性转移(Permanently Moved)。
+    302 redirect: 302 代表暂时性转移(Temporarily Moved )。
+    
+    对于用户来说，两者没有区别，他们看到的效果就是页面跳转，
+    浏览器中旧的URL变成新的URL，页面跳转到了这个新的URL指定的网页。这个地址可以从响应的Location首部中获取
+    
+    301表示旧地址A的资源已经被永久地移除了（这个资源不可访问了），
+    搜索引擎在抓取新内容的同时也将旧的网址交换为重定向之后的网址
+    302表示旧地址A的资源还在（仍然可以访问），
+    这个重定向只是临时地从旧地址A跳转到地址B，搜索引擎会抓取新的内容而保存旧的网址。
+    但是对于引擎和站长来说，
+    302有可能会造成网址劫持的问题。
+    假如A网址重定向到B网址，由于B网址太长或者太复杂，搜索引擎不会显示目标网址B而显示网址A。
+    有些不道德的人将自己的网址A做一个重定向到你的网址B，但是显示的网址还是他的网址A，页面内容却是你的内容。
+
+http请求头有哪些字段
+    1.	请求行：请求的方法，url,http协议版本（ url在请求行, cookie在请求头）
+    2.	Accept-Encoding 客户端支持的数据压缩格式
+    3.	Accept-Language 客户端的语言环境
+    4.	Connection:处理完这次请求后是否断开连接还是继续保持连接
+    5.	Cache-Control 指定请求和响应遵循的缓存机制
+    6.	pragma:no-cache表示禁用缓存，必须返回一个刷新后的文档
+
+    Accept
+    Accept-Charset
+    Accept-Encoding
+    Accept-language
+    Accept-Datetime
+
+    Authorization
+    Cache-Control
+    Connection
+    Cookie
+    Content-length 
+    Cotent-MD5
+    Content-Type 
+    Date
+    Expect 
+    From 
+    Host 
+
+    If-Match 
+    If-Modified-Since 
+    If-None-Match 
+    If-Range 
+    If-Unmodified-Since 
+
+    Max-Forwards
+    Origin 
+    Pragma 
+    Proxy-Authorization 
+    Range 
+    Referer 
+    TE 
+    User-Agent 
+    Upgrade 
+    Via 
+    Warning
+HTTP最常见的响应头字段
+    version1
+        Access-Control-Allow-Origin 指定哪些站点可以参与跨站资源共享
+        Accept-Patch 指定服务器支持的补丁文档格式，适用于http的patch方法
+        Accept-Ranges 服务器通过byte serving支持的部分内容范围类型
+        Age 对象在代理缓存中暂存的秒数
+        Allow 设置特定资源的有效行为，适用方法不被允许的http 405错误
+        Alt-Svc 服务器使用"Alt-Svc"（Alternative Servicesde的缩写）头标识资源可以通过不同的网络位置或者不同的网络协议获取
+        Cache-Control 告诉服务端到客户端所有的缓存机制是否可以缓存这个对象，单位是秒
+        Connection 设置当前连接和hop-by-hop协议请求字段列表的控制选项
+        ETag 特定版本资源的标识符，通常是消息摘要
+        Expires 设置响应体的过期时间
+        Last-Modified 设置请求对象最后一次的修改日期
+        Set-Cookie 设置HTTP Cookie
+        Status 设置HTTP响应状态
+        Pragma 
+    version2
+        首行：http版本，状态码，描述状态码的短语
+        1.	Allow 服务器支持哪些请求方法（如GET、POST等）；
+        2.	Content-Encoding 数据的压缩格式
+        3.	Content-Length 表示内容长度
+        4.	Content-Type 数据的类型.
+        5.	Cache-controll 它是一个相对时间，表示从请求时间到过期时间的秒数。
+        6.	Date：当前的GMT时间。
+        7.	ETag：Last-Modified类似, 不过他发送的是一个字符串来标识url的版本
+        8.	Expires 它是一个绝对时间，表示在指定时间后缓存失效。-1或0则是不缓存. 
+        9.	Last-Modified 当前资源的最后修改时间，客户可以通过If-Modified-Since请求头提供一个日期，只有改动时间迟于指定时间的文档才会返回，否则返回一个304状态
+        10.	Location 配合302状态码（临时性重定向）使用, 用于告诉客户找谁
+        11.	Server 服务器的类型
+
+http缓存有关的状态码
+    200OK当浏览器对某个资源的请求命中了强缓存时，返回的http状态为200, 浏览器没有跟服务器确认，直接用了浏览器缓存
+    304是浏览器对资源的请求命中了协商缓存返回的状态码，浏览器收到304的状态码后使用缓存文件
+    301永久重定向
+    302暂时重定向
+    303，307是HTTP1.1对302的扩充
+
+web缓存,浏览器怎么知道要从缓存获取；有没有方法不请求不经过服务器直接使用缓存。
+（强缓存和协商缓存的命中和管理）、浏览器缓存的区别
+    1.	浏览器在第一次加载资源时，会将资源和资源的响应头缓存下来，
+        当再次加载该资源的时候，首先浏会根据缓存的响应头里的 Expires 和Cache-Control 信息来判断是否命中 “强缓存”，
+        如果命中，浏览器直接从缓存中读取资源，不会发送请求到服务器。
+    2.	当强缓存没有命中的时候，浏览器发送一个请求到服务器。
+        服务器根据响应头的 Last-Modified和Etag 信息来判断是否命中协商缓存，
+        如果命中，服务器返回一个304的状态码和空的响应体，浏览器收到304的状态码后使用缓存文件。
+    3.	当协商缓存没有命中的时候，浏览器直接从服务器加载资源。
+
+讲讲304缓存的原理
+    304这个状态码的意思是 请求的资源未被修改过
+    1.	当用户第一次请求某个文件，服务器端返回这个文件并且返回一个 Last-Modified字段，来告诉客户端该文件的最后改动时间
+    2.	当浏览器再次请求该资源的时候，会将这个时间作为请求头的 If-Modified-Since字段内容发送给服务器
+    3.	服务器端会根据这个字段内容判断客户端的文件是否过期，如果过期，就返回新的文件
+    4.	如果没过期，返回304状态码，客户端使用缓存文件。
+
+304与200读取缓存的区别？ 
+    1.	当浏览器对某个资源的请求命中了强缓存时，返回的http状态为200
+    2.	当浏览器对某个资源的请求没有命中强缓存，就会发一个请求到服务器，
+        验证“协商缓存“是否命中，如果协商缓存命中，请求响应返回的http状态为304，
+        浏览器收到304的状态码后使用缓存文件。
+
+什么是Etag？应用
+    1.	它是一个字符串，标识了url的版本。服务器使用它来判断页面是否被修改过。
+    2.	当浏览器第一次请求一个页面，服务器返回页面并且给页面加上一个Etag，浏览器缓存页面和Etag
+    3.	当浏览器再次请求该页面时，将Etag作为If-None-Match头部信息发送给服务器，
+        服务器检查Etag来判断是否被修改过，返回304和空的响应体。
+    4.	浏览器收到304的状态码后使用缓存文件。
+    5.	这实际上是一个协商缓存。
+
+Etag怎么生成的？
+    响应头部中的标识，用于表示资源内容唯一性的标识，该值由服务器生成，生成规则由服务器自行决定，
+    一般是文件大小（size）、修改时间（time）、索引（index）等数据Hash后生成。
+    服务器在响应客户请求时可以带上Etag值，供资源过期时，客户端向服务器发送验证请求时使用。
+    
+    服务器会按照请求文件的inode，大小，以及最终的修改时间来生成Etag的内容，（hash）
+    并且包含在http的响应头部信息返回给客户端。
+
+为什么要增加Etag?和If-Modified-Since的优先级？
+    If-None-Match相比于If-Modified-Since具有更高的优先级别。
+    如果ETag被关闭，服务器将使用If-Modified-Since参数来判断页面是否有更新，
+    浏览器的If-Modified-Since参数来自原服务器上一次响应报文中的Last-Modified参数，这个参数精确到秒。
+    也就是说，如果出1秒内页面被多次修改，使用这个参数就无法判断，这就是要增加ETag的原因。
+
+Expires和Cache-Control
+    Expires要求客户端和服务端的时钟严格同步。
+    HTTP1.1引入Cache-Control来克服Expires头的限制。
+    如果max-age和Expires同时出现，则max-age有更高的优先级。
+
+    Expires和Cache-Control是http响应头信息，都用来表示资源在客户端缓存的有效期。浏览器强缓存就是利用它们来实现的。
+
+    Expires是较老的强缓存管理header，它是服务器返回的一个绝对时间。用GMT格式的字符串表示。它的缓存原理是：
+        1.	当浏览器第一次请求一个资源时，服务器返回资源的同时，会在响应头里加上Expires的header。
+        2.	浏览器收到这个资源后，会把资源和响应头都缓存下来。
+        3.	当浏览器再次请求这个资源时，先在自己的缓存里寻找，
+            找到后判断当前请求时间是否在Expires之前。
+            如果是就命中强缓存，浏览器直接从缓存中读取资源，不会发送请求到服务器。
+        4.	如果缓存都没有命中，浏览器直接从服务器加载资源时，Expires会被更新。
+    Cache-Control是比较新的缓存管理header，它是一个相对时间，单位是秒，它的缓存原理是：
+        1.	当浏览器第一次请求一个资源时，服务器返回资源的同时，会在响应头里加上Cache-Control的header。
+        2.	浏览器收到这个资源后，会把资源和响应头都缓存下来。
+        3.	当浏览器再次请求这个资源时，先在自己的缓存里寻找，
+            找到后根据第一次请求时间和Cache-Control设定的有效期，计算出一个资源过期时间。
+            如果当前请求事情在过期时间之前，就命中强缓存，浏览器直接从缓存中读取资源，不会发送请求到服务器。
+        4.	如果缓存都没有命中，浏览器直接从服务器加载资源时，Cache-Control会被更新。
+
+Cache-control都有哪些值
+    常见的取值有private、no-cache、max-age、must-revalidate
+    如果指定cache-control的值为private、no-cache、must-revalidate，那么打开新窗口访问时都会重新访问服务器。
+    而如果指定了max-age值，那么在此值内的时间里就不会重新访问服务器
+Cache control和expires的优先级
+    Cache-Control: max-age=秒  Max-age的优先级也是高于Expires的
+    Expires 的一个缺点就是，返回的到期时间是服务器端的时间，
+    这样存在一个问题，如果客户端的时间与服务器的时间相差很大，那么误差就很大，
+    所以在HTTP 1.1版开始，使用Cache-Control: max-age=秒替代。
+
+禁止缓存，期限，修改/请列举三种禁止浏览器缓存的头字段, 并写出相应的设置值
+    1.动态加载文件的时候在文件末尾 以查询字符串的形式 加一个时间戳作为版本参数以强制刷新
+        <script>
+            var js = document.createElement("script");
+            js.src = "test.js?random" + Math.random();
+            document.body.appendChild(js);
+        </script>
+    2.meta方法:在meta标签里设置http-equiv属性，它可以把content属性关联到http头部。
+        1.	expires： 告诉浏览器把回送的资源缓存多长时间  -1或0则是不缓存
+            <meta http-equiv="Expires" content="0">
+        2.	Cache-Control: no-cache 描述的是相对时间。　　
+            <meta http-equiv="Cache-Control" content="no-cache">
+        3.	Pragma: no-cache 设定禁止浏览器从本地获取缓存。
+            <meta http-equiv="Pragma" content="no-cache">
+    3.使用BOM对象的location对象
+        location.reload(true)  //强行从服务器加载
+手写设置文档过期时间的方法
+    function setExpires(days){
+        //创建一个meta标签
+        var meta=document.createElement("mata");
+        // 设置http-equiv属性为expires.它可以将content的值关联到文档的头部
+        meta.setAttribute("http-equiv","expires");
+        //把过期时间设置为现在的1天后
+        var d=new Date()  //返回的date实例 ‘Fri Sep 01 2017 14:45:59 GMT+0800 (中国标准时间)’
+        d.setDate(d.getDate()+days);
+        //设置content属性为一个GMT格式的字符串
+        meta.setAttribute("content",d.toGMTString())  //"Sat, 02 Sep 2017 06:45:59 GMT"
+        //插入到head标签中
+        document.getElementsByTagName("head")[0].appendChild(meta);
+    }
+
+HTTP 请求方法
+    GET POST HEAD OPTIONS PUT DELETE TRACE
+OPTIONS请求头的作用
+    1.获取服务器支持的HTTP请求方法；也是黑客经常使用的方法。
+    2.用来检查服务器的性能。
+        例如：AJAX进行跨域请求时的预检，需要向另外一个域名的资源发送一个HTTP OPTIONS请求头，用以判断实际发送的请求是否安全。
+GET和POST的区别
+    1.	GET：从指定资源请求数据
+    2.	POST：向指定的资源发送数据，例如提交表单或者上传文件，数据被包含在请求体中，
+        POST请求可能会导致新的资源的建立和/或已有资源的修改。
+    区别：
+    1、传送方式：get通过地址栏传输，post通过报文传输。
+    2、传送长度：get参数有长度限制（受限于url长度），而post无限制
+    3、GET和POST还有一个重大区别，简单的说：
+    GET产生一个TCP数据包；POST产生两个TCP数据包：
+        对于GET方式的请求，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）；
+        而对于POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok（返回数据）。
+常用协议的端口
+    http的端口号，ftp的端口号
+    1.	HTTP默认的端口号为80
+    2.	FTP默认的端口号为21
+    3.	HTTPS默认的端口号为443
+HTTP和HTTPS的区别
+为什么HTTPS安全
+    1.	HTTPS是http和TCP之间的安全协议层，
+        它利用SSL/TLS安全传输层协议传输，在数据的传输过程当中对密钥进行验证，避免中间节点篡改信息，保证数据传输的安全。
+    2.	http端口号80，https是443。https更加安全
+HTTPS为什么使用对称加密而不是非对称加密
+    首先：非对称加密的加解密效率是非常低的，
+    而 http 的应用场景中通常端与端之间存在大量的交互，非对称加密的效率是无法接受的。
+    另外：在 HTTPS 的场景中只有服务端保存了私钥，一对公私钥只能实现单向的加解密，
+    所以 HTTPS 中内容传输加密采取的是对称加密，而不是非对称加密。
+HTTP1.X和HTTP2.X有哪些区别
+    （1）HTTP2使用的是二进制传送，HTTP1.X是文本（字符串）传送。
+    二进制传送的单位是帧和流。帧组成了流，同时流还有流ID标示
+    （2）HTTP2支持多路复用
+    因为有流ID，所以通过同一个http请求实现多个http请求传输变成了可能，
+    可以通过流ID来标示究竟是哪个流从而定位到是哪个http请求
+    （3）HTTP2头部压缩
+    HTTP2通过gzip和compress压缩头部然后再发送，同时客户端和服务器端同时维护一张头信息表，
+    所有字段都记录在这张表中，这样后面每次传输只需要传输表里面的索引Id就行，通过索引ID查询表头的值
+    （4）HTTP2支持服务器推送
+    HTTP2支持在未经客户端许可的情况下，主动向客户端推送内容
+HTTP1.1如何实现长连接
+    （1）客户端发出http1.1的请求
+    （2）服务端收到http1.1后就认为这是一个长连接,
+        会在返回的response设置Connection： keep-alive,同时不会关闭已建立的连接.
+    （3）客户端收到服务端的response后,发现其中包含”Connection： keep-alive“，
+        就认为是一个长连接，不关闭这个连接。并用该连接再发送request.转到（1）
+     基于http协议的长连接减少了请求,减少了建立连接的时间,
+     但是每次交互都是由客户端发起的,客户端发送消息,服务端才能返回客户端消息。
+     因为客户端也不知道服务端什么时候会把结果准备好，所以客户端的很多请求是多余的,仅是维持一个心跳,浪费了带宽。
+
+说说网络分层里七层模型是哪七层(从上到下)
+    1. 应用层(http，ftp,smtp):定义进程之间通信和交互的规则
+    2. 表示层，完成数据的转换、格式化、压缩
+    3. 会话层，建立、管理和终止对话
+    4. 传输层（TCP UDP），提供数据传输服务
+    5. 网络层，负责数据包从源到宿的传递
+    6. 数据链路层，将比特组装成帧进行点到点的传递
+    7. 物理层，通过媒介传输比特，确定机械及电气规范，它主要规定了网络的一些电气特性，作用是负责传输0和1的电信号。
+传输层协议都有哪些？
+    TCP 传输控制协议 在传输层保证数据可靠传输的一种协议
+    UDP 用户数据包协议 在传输层是数据具有较高传输效率的一种协议 
+    spx 序列分组交换协议 在Novell网络中传输层的一种协议。
+应用层协议
+    HTTP 超文本传输协议 用于网页浏览 
+    smtp 简单邮件传输协议 邮件发送 
+    ftp 文件传输协议 远程文件传输 
+    pop3 邮局协议 邮件接收 telnet 远程登录 
+    snmp 简单网络管理协议 网络管理 
+    dhcp 动态主机配置协议 自动分配
+    IP tftp 简单文件传输协议 短小文件的远程传输
+
+五层网络知道么？
+    物理层：通过媒介传输比特,确定机械及电气规范（比特Bit）
+    数据链路层：将比特组装成帧和点到点的传递（帧Frame）
+    网络层：负责数据包从源到宿的传递和网际互连（包PackeT）
+    传输层：提供端到端的可靠报文传递和错误恢复（段Segment）
+    应用层：定义进程之间通信和交互的规则
+    越往下的层，越靠近硬件；越上面的层，越靠近用户，每一层都是为了完成一种功能。
+    为了实现这些功能，就需要大家都遵守共同的规则，大家都遵守的规则，就叫做"协议"（protocol）
+每层常见的协议
+    应用层： FTP 、 DNS 、 Telnet 、 SMTP 、 HTTP 、 WWW 、 NFS
+        http:超文本传输协议，定义了浏览器和服务器之间按照怎样的规则进行请求和响应的（端口号80）
+        SMTP：支持电子邮件的协议
+        FTP:支持文件传送的协议（端口号21）
+    传输层： TCP 、 UDP
+        TCP：传输控制协议
+        UDP：用户数据报协议
+
+在css/js代码上线之后开发人员经常会优化性能，从用户刷新网页开始，一次js请求一般情况下有哪些地方会有缓存处理？
+    DNS缓存：短时间内多次访问某个网站，在限定时间内，不用多次访问DNS服务器。
+    CDN缓存：内容分发网络，CDN允许我们将文件的副本放在全球的各个数据中心，
+        这样用户可以就近的取得资源，而我们文件代码中URL不需要修改。
+        比如Google，Microsoft，Yahoo等等。
+    浏览器缓存：浏览器在用户磁盘上，对最新请求过的文档进行了存储。
+    服务器缓存：将需要频繁访问的Web页面和对象保存在离用户更近的系统中，
+        当再次访问这些对象的时候加快了速度。
+
+webscoket会用吗？webSocket如何兼容低浏览器,websocket原理，应用场景
+    webscoket是HTML5提供的传输协议。
+    它的目标是在一个 单独的连接上 建立双向的通信。
+    创建了一个WebSocket以后，会有一个http请求发送到浏览器，
+    在取得响应后，建立的连接会从http协议升级为WebSocket协议
+    
+    使用标准的http服务器无法实现Websockt，只有支持这个协议的专门服务器才可以正常工作。
+    
+    它使用自定义的协议，所以他的URL是ws:// 或者wws：//
+    使用它的好处就是，可以在浏览器和服务器之间发生少量的数据，这非常适用于移动应用。
+    而且它可以将服务器的更新及时、主动地发给客户端,而不需要客户端以一定时间间隔去轮询。
+    他可以用在聊天室，弹幕，玩家聊天，基于位置的应用等
+
+    目前主流的浏览器都支持WebSocket协议，IE还不支持。如何兼容呢？
+    Adobe Flash Socket 、 ActiveX HTMLFile (IE) 、 基于AJAX的长轮训（可以通过xhr对象和setTimeout来实现）
+    首先实例化一个sockt对象
+    用send（‘字符串’）发送数据，onmessage接受数据，（event对象的data属性）
+    可以使用close()来关闭连接。
+    
+    应用场景：社交聊天、弹幕、多玩家游戏、协同编辑、基于位置的应用、体育实况更新、视频会议/聊天等需要高实时的场景
+
+WEB应用从服务器主动推送Data到客户端有那些方式？
+    1.	基于 AJAX 的长轮询（long-polling）方式，
+        发送请求后服务器一直保持连接打开，直到有数据发送，发送完毕后浏览器关闭连接，然后立马再发起新的请求。
+    2.	HTTP 流，只使用一个http连接，服务器周期性的向客户端发送数据。
+        浏览器端通过监听onreadystate事件，如果readyState变为3时表明有新消息，
+        再通过截取字符串获得最新的消息，接续的index就是上次接受字符串的长度。
+        当readyState变为4的时候说明连接关闭。
+    3.	HTML5新引入的WebSocket，可以实现服务器主动发送数据至网页端
+    上述的1和2统称为comet技术
+
+XSS
+    跨站脚本攻击(Cross Site Scripting)：在一些表单交互中，通过注入一些特殊的html标签或者js代码来实现对用户浏览器的控制
+    例子：攻击者将脚本插入到网页当中，将获取到cookie的内容，再利用cookie作为用户的身份登录，窃取用户的隐私
+    怎么预防：
+    作为开发者，要运用转义安全字符等手段对用户的输入的特殊字符进行转义
+    避免将重要信息存储在cookie中
+    如果客户端不需要对cookie进行操作，可以在Set-Cookie 末尾加上HttpOnly 来防止javascript 代码直接获取cookie 。
+CSRF
+    跨站请求伪造(Cross-site request forgery)：攻击者以用户的身份来向服务器发送请求，造成个人隐私的泄漏和威胁财产安全
+    例子：
+    受害者登录a.com,并保留了登录凭证cookie
+    攻击者诱导受害者访问了b.com
+    b.com向a.com发送一个请求，a.com误以为是受害者发送的请求，并执行了某些操作
+    如何防止：
+    同源检测，检查请求头Origin或者referer参数
+    对于任何重要的请求都要重新验证身份
+    创建一个唯一的token放到客户端的cookie和服务器的session中，任何请求检查两者是否一致
+http劫持
+    例子：网站上被放了一些奇怪的小广告，但是这个广告并不是这个网站所投放的，这就是被http劫持了
+    原理：当HTTP协议包经过劫持者（一般是网络运营商）网络传输时，
+        劫持者在HTTP数据包中注入相关的劫持代码，当客户端将要展示页面的时候，注入的代码也会被解析并展示
+    如何防止：HTTPS可以防止绝大部分的HTTP劫持，
+        因为HTTPS传输的数据是加密的，劫持者无法解密数据包并注入劫持代码
