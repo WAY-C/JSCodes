@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>数据绑定</title>
+    <!-- 引入Vue -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <!-- 全局多了一个Vue构造函数 -->
+</head>
+
+<body>
+    <!-- 准备好一个容器 -->
+    <div id="root">
+        单向数据绑定：<input type="text" :value="name"><br />
+        <!-- 双向数据绑定：<input type="text" v-model:value="name"> -->
+        <!-- v-model:value 简写可删去“:value”，如下： -->
+        双向数据绑定：<input type="text" v-model="name">
+        <!-- 以下代码错误，v-model仅适用于表单类元素 -->
+        <!-- <h1 v-model:x="name">你好啊</h1> -->
+
+    </div>
+
+
+
+</body>
+<script type="text/javascript">
+    Vue.config.productionTip = false; //阻止Vue在启动时产生生产提示
+    // 创建Vue实例
+    // const x = new Vue({
+    new Vue({
+        el: '#root',
+        data: {
+            name: 'Waylon',
+        }
+    })
+</script>
+
+</html>

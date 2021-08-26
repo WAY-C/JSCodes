@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>el与data的两种写法</title>
+</head>
+
+<body>
+    <div id="root">
+        <h1>你好啊{{name}}</h1>
+    </div>
+</body>
+<script>
+    // el的两种写法
+    /*
+    const v = new Vue({
+        // el的第一种写法
+        // el: '#root',
+        data: {
+            name: 'Waylon',
+        }
+    });
+    // el的第二种写法
+    v.$mount("#root"); //挂载
+    */
+
+    // data的两种写法
+    new Vue({
+        el: '#root',
+        // data的第一种，对象式
+        // data: {
+        //     name: 'Waylon',
+        // }
+        // data的第二种，函数式
+        data: function () {
+            return {
+                name: 'Waylon'
+            };
+        }
+    })
+</script>
+
+</html>

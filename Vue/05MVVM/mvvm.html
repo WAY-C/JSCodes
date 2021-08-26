@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVVM</title>
+    <!-- 引入Vue -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+</head>
+
+<body>
+    <!-- V: VIEW 视图  即模板代码
+     M: Model 模型 data中的数据 
+     VM viewmodel 视图模型，即Vue实例
+
+     data中所有属性都会出现在vm身上
+     vm身上所有属性及Vue原型上所有属性，在Vue模板中都可以直接使用
+    -->
+    <div id="root">
+        <h1>姓名：{{name}}</h1>
+        <h1>地址：{{address}}</h1>
+        <!-- V: VIEW 视图  即模板代码 -->
+    </div>
+
+</body>
+<script type="text/javascript">
+    new Vue({   // VM viewmodel 视图模型，即Vue实例
+        el: '#root',
+        data: { // M: Model 模型 data中的数据 
+            name: 'Waylon',
+            address: '北京市'
+        }
+    })
+</script>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>数据绑定</title>
+    <!-- 引入Vue -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <!-- 全局多了一个Vue构造函数 -->
+</head>
+
+<body>
+    <!-- 准备好一个容器 -->
+    <div id="root"> 单向数据绑定：<input type="text" :value="name"><br/> 双向数据绑定：<input type="text" v-model:value="name"> </div>
+    <script type="text/javascript">
+        Vue.config.productionTip = false; //阻止Vue在启动时产生生产提示
+        // 创建Vue实例
+        // const x = new Vue({
+        new Vue({
+            el: '#root', //el属性用于指定当前Vue实例为那个容器服务，值通常为CSS选择器字符串
+            data: { //data用于存储数据，供el选择的容器使用，值暂时为一个对象 
+                name: 'Waylon'
+            },
+        });
+    </script>
+</body>
+
+</html>
