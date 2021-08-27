@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件的基本使用</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <!-- 
+        事件修饰符：
+        1.   .prevent  阻止默认行为
+        2.   .stop     阻止事件冒泡
+        3.   .once     事件只触发一次
+        4.   .capture  使用事件捕获模式
+        5.   .self     只有事件的target是当前操作的元素时才触发
+        6.   .passive  事件的默认行为立即执行，不必等待事件回调执行完毕
+     -->
+    <div id="root">
+        <h1>欢迎和{{name}}交朋友</h1>
+        <button v-on:click="makeFriends">点击和我交朋友</button>
+        <button @click="showInfo($event,66)">点击查看信息并传递参数</button>
+        <!--   v-on: 简写为 @    -->
+        <!--   传参时需要用关键字“ $event ”，否则event就丢了 -->
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+
+    const vm = new Vue({
+        el: '#root',
+        data: {
+            name: 'Waylon'
+        },
+        methods: {
+            makeFriends(event) {
+                alert("你好，很高兴认识你");
+                // console.log(event.target.innerHTML);
+                // console.log(this); //此处的this是vm，用箭头函数定义method时this是window
+            },
+            showInfo(event, num) {
+                alert("你好，其实我没什么信息");
+                console.log(num);
+                console.log(event);
+            }
+
+        }
+    })
+</script>
+
+</html>

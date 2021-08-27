@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘事件</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <!-- 
+        1.Vue中常用的键盘别名：
+            enter回车 
+            tab换行符 （特殊，只能绑定keydown才能发挥作用）
+            delete(捕获Backspace和Delete键) 
+            esc退出 
+            apace空格
+            up down left right
+        2.Vue未提供别名的按键，可以使用按键原始的key值去绑定
+            注意转为短横线命名（caps-locks）
+
+        3.系统修饰符（用法特殊） ctrl alt shift meta
+            如果配合keyup，需要按下修饰键的同时按下其他键，随后释放其他键，事件才会被触发
+            如果配合keydown，正常触发事件
+
+        4.也可以使用keyCode去指定具体的按键，但是不推荐
+        5.也可以自定义按键名：（也不推荐）
+            Vue.config.keyCodes.自定义键名 = 键码
+     -->
+    <div id="root">
+        <h1>欢迎和{{name}}交朋友</h1>
+        <button v-on:click="makeFriends">点击和我交朋友</button>
+        <button @click="showInfo($event,66)">点击查看信息并传递参数</button>
+        <!--   v-on: 简写为 @    -->
+        <!--   传参时需要用关键字“ $event ”，否则event就丢了 -->
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+
+    const vm = new Vue({
+        el: '#root',
+        data: {
+            name: 'Waylon'
+        },
+        methods: {
+            makeFriends(event) {
+                alert("你好，很高兴认识你");
+                // console.log(event.target.innerHTML);
+                // console.log(this); //此处的this是vm，用箭头函数定义method时this是window
+            },
+            showInfo(event, num) {
+                alert("你好，其实我没什么信息");
+                console.log(num);
+                console.log(event);
+            }
+
+        }
+    })
+</script>
+
+</html>

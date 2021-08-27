@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件的基本使用</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <div id="root">
+        <h1>欢迎和{{name}}交朋友</h1>
+        <button v-on:click="makeFriends">点击和我交朋友</button>
+        <button @click="showInfo($event,66)">点击查看信息并传递参数</button>
+        <!--   v-on: 简写为 @    -->
+        <!--   传参时需要用关键字“ $event ”，否则event就丢了 -->
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+
+    const vm = new Vue({
+        el: '#root',
+        data: {
+            name: 'Waylon'
+        },
+        methods: {
+            makeFriends(event) {
+                alert("你好，很高兴认识你");
+                // console.log(event.target.innerHTML);
+                // console.log(this); //此处的this是vm，用箭头函数定义method时this是window
+            },
+            showInfo(event, num) {
+                alert("你好，其实我没什么信息");
+                console.log(num);
+                console.log(event);
+            }
+
+        }
+    })
+</script>
+
+</html>
