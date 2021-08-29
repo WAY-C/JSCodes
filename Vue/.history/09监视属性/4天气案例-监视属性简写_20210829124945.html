@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天气案例-监视属性简写</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <div id="root">
+        <h2>今天天气很{{weather}}</h2>
+        <button @click="changeWeather">点击切换天气</button>
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+    const vm = new Vue({
+        el: '#root',
+        data: {
+            isHot: true
+        },
+        computed: {
+            weather() {
+                return this.isHot ? '热' : '冷';
+            }
+        },
+        methods: {
+            changeWeather() {
+                this.isHot = !this.isHot;
+            }
+        },
+        // watch: {
+        //     // 当不需要immediate和deep时就可以简写
+        //     isHot(newValue, oldValue) {
+        //         console.log("isHot被改变了", newValue, oldValue);
+        //     }
+        // }
+    })
+
+    // 正常写法
+    /*
+    vm.$watch('isHot', {
+        immediate: false, // 初始化时是否调用handler
+        // 当isHot发生改变时就调用handler
+        handler(newValue, oldValue) {
+            console.log('被修改了');
+        }
+    })
+     */
+    //简写 注意不可使用箭头函数，否则this改变
+    vm.$watch('isHot', function () {
+        console.log("isHot被改变了", newValue, oldValue);
+    })
+</script>
+
+</html>

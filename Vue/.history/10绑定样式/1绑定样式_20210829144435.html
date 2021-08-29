@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绑定样式</title>
+    <script src="../js/vue.js"></script>
+    <style>
+        .basic {
+            width: 400px;
+            height: 100px;
+            border: 1px solid #000;
+        }
+
+        .happy {
+            background-color: red;
+        }
+
+        .sad {
+            background-color: #999;
+            border-color: green;
+        }
+
+        .normal {
+            background-color: skyblue;
+        }
+
+        .style1 {
+            background-color: #a78;
+        }
+
+        .style2 {
+            font-size: 20px;
+            text-shadow: #a78;
+        }
+
+        .style3 {
+            text-decoration: line-through;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        // class样式-字符串写法，用于样式的类名不确定，且需要动态指定
+        <div class="basic" :class="mood" @click="changeMood">{{name}}</div>
+        // class样式-数组写法，用于样式的个数和类名都不确定
+        <div class="basic" :class="classArr">{{name}}</div>
+        // class样式-对象写法，用于样式的个数、名字确定，动态决定用不用
+        <div class="basic" :class="classObj">{{name}}</div>
+        // style样式-对象写法
+        <div class="basic" :style="styleObj">{{name}}</div>
+        // style样式-数组写法
+        <div class="basic" :style="styleArr">{{name}}</div>
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+    const vm = new Vue({
+        el: '#root',
+        data: {
+            name: 'Waylon',
+            mood: 'happy',
+            classArr: ['style1', 'style2', 'style3'],
+            classObj: {
+                style1: true,
+                style2: false
+            },
+            styleObj: {
+                color: 'red',
+                fontSize: '50px'
+            },
+            styleObj2: {
+                backgroundColor: 'orange'
+            },
+            styleArr: [
+                {
+                    color: 'green',
+                    fontSize: '60px'
+                },
+                {
+                    backgroundColor: 'skyblue'
+                }
+            ]
+        },
+        methods: {
+            changeMood() {
+                const moods = ['happy', 'sad', 'normal'];
+                const index = Math.floor(Math.random() * 3);
+                this.mood = moods[index];
+            }
+        }
+    })
+</script>
+
+</html>
