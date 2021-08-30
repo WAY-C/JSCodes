@@ -1,0 +1,21 @@
+今日复习：
+Vue:
+    1.v-for使用时 :key 的工作原理与作用
+    2.列表过滤
+    3.Vue检测数据的原理，修改数据时推荐的方法（Vue.set等）
+    4.Vue收集表单数据
+    5.过滤器（全局和局部）
+    6.v-text,v-html,v-cloak,v-once,v-pre
+    7.v-html使用时存在的风险，cookie原理，XSS攻击及其原理
+2021暑期实习面经——百度：
+    1.position属性的各种取值和区别
+    2.如何实现双栏布局（浮动+margin、浮动+BFC、flex实现），
+        同时复习了什么是BFC，如何让一个元素开启BFC属性
+    3.CSS的transform属性，2d和3d的移动、旋转，透视属性perspective，以及transform-style属性
+    4.如何用CSS画一个三角形（利用border）
+    5.数组slice、splice的用法、区别、是否改变原数组
+    6.前端性能优化的方式有哪些
+    7.MVVM模型
+    8.写代码实现获取所有title属性以“baidu”开头的元素
+        （考察获取元素的方法、属性选择器）
+    9.写代码实现Xpath
