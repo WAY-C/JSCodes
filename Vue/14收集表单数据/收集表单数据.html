@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收集表单数据</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <div id="root">
+        <form @submit.prevent="demo">
+            账号：<input type="text" v-model="UserInfo.account"><br><br>
+            密码：<input type="password" v-model="UserInfo.password"><br><br>
+            年龄：<input type="number" v-model.number="UserInfo.age"><br><br>
+            性别：<br><br>
+            男<input type="radio" name="sex" value="male" v-model="UserInfo.sex">
+            女<input type="radio" name="sex" value="female" v-model="UserInfo.sex">
+            <br><br>
+            兴趣爱好：<br><br>
+            学习<input type="checkbox" value="study" v-model="UserInfo.hobby">
+            吃饭<input type="checkbox" value="eat" v-model="UserInfo.hobby">
+            睡觉<input type="checkbox" value="sleep" v-model="UserInfo.hobby">
+            <br><br>
+            所属校区：
+            <select v-model="UserInfo.campus">
+                <option value="">请选择校区</option>
+                <option value="Haidian">海淀校区</option>
+                <option value="Shahe">沙河校区</option>
+            </select>
+            <br><br>
+            其他：
+            <textarea v-model.lazy="UserInfo.other"></textarea><br><br>
+            <input type="checkbox" v-model="UserInfo.agree"> 阅读并接受 <a href="#">《用户协议》</a>
+            <button>提交</button>
+        </form>
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+
+    const vm = new Vue({
+        el: "#root",
+        data: {
+            UserInfo: {
+                account: "",
+                password: "",
+                age: "",
+                sex: "male",
+                hobby: [],
+                campus: "Haidian",
+                other: "",
+                agree: ""
+            }
+        },
+        methods: {
+            demo() {
+                console.log(JSON.stringify(this.UserInfo));
+            }
+        }
+    })
+</script>
+
+</html>
