@@ -1,0 +1,12 @@
+今日学习：
+Vue：
+    自定义指令（函数式、对象式）
+    生命周期（详细过程与8个钩子）
+    对组件的理解
+    非单文件组件
+    组件的嵌套（一般要有一个APP组件）
+    VueCompenent构造函数
+    vm与vc的联系与区别（Vue实例对象和组件实例对象）
+    VueCompenent.prototype.__proto__ === Vue.prototype (让vc可以访问到Vue原型上的属性、方法)
+    单文件组件的格式，VSCode的vue文件插件
+    什么是vue脚手架（Vue CLI）
