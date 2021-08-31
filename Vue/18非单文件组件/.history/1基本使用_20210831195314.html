@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非单文件组件的基本使用</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <div id="root">
+        <h2>{{hello}}</h2>
+        <hr />
+        <!-- 第三步，编写组件标签 -->
+        <school></school>
+        <hr />
+        <student></student>
+        <student></student>
+    </div>
+</body>
+<script>
+    // 第一步 创建组件
+    const school = Vue.extend({
+        data: function () {
+            return {
+                name: "Waylon School",
+                address: "北京海淀"
+            }
+        },
+        template: `
+        <div>
+            <h2>学校的名字是：{{name}}</h2>
+            <h2>学校的地址是：{{address}}</h2>            
+        </div>`
+    })
+
+    const student = Vue.extend({
+        data() {
+            return {
+                name: 'Waylon',
+                age: 21
+            }
+        },
+        template: `
+        <div>
+            <h2>学生的名字是：{{name}}</h2>
+            <h2>学生的年龄是：{{age}}</h2>
+            <button @click="add">点我年龄＋1</button>            
+        </div>`,
+        methods: {
+            add() {
+                this.age++;
+            }
+        }
+    })
+
+    new Vue({
+        el: "#root",
+        data: {
+            hello: "Hello World"
+        },
+        // 第二步 注册组件
+        components: {
+            school,
+            student
+        }
+    })
+    console.log(Vue.prototype);
+</script>
+
+</html>

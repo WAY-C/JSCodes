@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析生命周期</title>
+    <script src="../js/vue.js"></script>
+</head>
+
+<body>
+    <div id="root">
+        <h2>当前的n值是：{{n}}</h2>
+        <button @click="add">点我n+1</button>
+        <button @click="bye">点我销毁vm</button>
+    </div>
+</body>
+<script>
+    Vue.config.productionTip = false;
+
+    new Vue({
+        el: "#root",
+        // template里的内容将完全替换el
+        //     template: `<div>
+        //     <h2>当前的n值是：{{n}}</h2>
+        //     <button @click="add">点我n+1</button>
+        // </div>`,
+        data: {
+            n: 1
+        },
+        methods: {
+            add() {
+                console.log("add");
+                this.n++;
+            },
+            bye() {
+                console.log("bye");
+                this.$destroy();
+            }
+        },
+        // 数据代理和数据监测创建之前，不是vm创建之前，此处this是vm
+        beforeCreate() {
+            console.log('beforeCreate');
+            // console.log(this);
+            // debugger;
+        },
+        // 完成数据监测和数据代理，可以通过vm访问data中的数据，methods中配置的方法
+        created() {
+            console.log('created');
+            // console.log(this);
+        },
+        // Vue开始解析模板，生成了虚拟DOM（内存中），还不能显示解析好的内容
+        // 页面呈现的是未经Vue编译的DOM结构，所有对DOM的操作最终都不奏效
+        beforeMount() {
+            console.log('beforeMount');
+        },
+        // 将内存中的虚拟DOM转为真实DOM插入页面
+        // 页面呈现的是经过Vue编译的DOM，对DOM的操作都有效（尽可能避免）
+        // 至此初始化过程结束，一般在此处：开启定时器、发送网络请求、订阅消息、绑定自定义事件等初始化操作
+        mounted() {
+            console.log('mounted');
+        },
+        // 数据已经更新但页面还是旧的
+        beforeUpdate() {
+            console.log('beforeUpdate');
+        },
+        // 根据新数据生成新的虚拟DOM，与旧的虚拟DOM比较，最终完成页面的更新（即完成Model->View的更新）
+        // 此时数据是新的，页面也是新的
+        updated() {
+            console.log('updated');
+        },
+        // 当vm.$destroy()被调用时 
+        // 完全销毁一个实例，清理它与其他实例的连接，解绑它的全部指令和（自定义）事件监听器
+        // 此时，vm中的data、methods、指令等等都处于可用状态，马上要执行销毁过程
+        // 但是对数据的操作不会再更新
+        // 一般在此阶段：关闭定时器、取消订阅消息、解绑自定义事件等收尾操作
+        beforeDestroy() {
+            console.log('beforeDestroy');
+        },
+        destroyed() {
+            console.log("destroyed");
+        },
+    })
+</script>
+
+</html>
