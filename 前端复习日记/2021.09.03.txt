@@ -1,0 +1,15 @@
+今日： 
+ 投递所有预计投递的公司
+ 接受周一面试
+
+ 复习了：
+   什么是BFC，如何触发BFC
+   CSS 精灵图sprites
+   JS的基本类型有哪些，symbol是干啥的
+   let const var 的区别
+   获取DOM元素的方法，getElement(s)ByXXX 和 querySelector的区别 
+   如何判断对象为空（JSON,for in循环，Jquery isEmptyObject，Object.getOwnPropertyNames，Object.keys）
+   数组slice和splice的用法、区别
+   事件委托是什么，怎么实现
+   XHR发送请求的过程
+   闭包是什么，有什么好处 
