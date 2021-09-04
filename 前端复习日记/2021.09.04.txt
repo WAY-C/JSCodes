@@ -1,0 +1,11 @@
+跨域的解决方案
+JS的原型和原型链
+实现元素水平垂直居中的方法（整理了五种）
+console.log(typeof typeof typeof null); //string
+instanceof和typeof的区别
+this指向的问题及箭头函数的this
+数组扁平化的方法
+数组去重的方法
+数组排序的方法
+CSS类选择器的优先级
+怎么解决margin塌陷的问题
