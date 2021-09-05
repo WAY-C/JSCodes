@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="div1">
+        <div id="div2"></div>
+        <p id="p1"></p>
+        <p id="p2"></p>
+    </div>
+    <div id="div3">
+        <img src="" alt="">
+        <h2></h2>
+    </div>
+</body>
+<script id="sc1" type="text/javascript">
+    const root = document.body;
+    function forDom(node) {
+        const children = node.children;
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            console.log("当前节点的名字" + child.id);
+            if (child.children) {
+                forDom(child);
+            }
+        }
+    }
+    forDom(root);
+</script>
+
+</html>

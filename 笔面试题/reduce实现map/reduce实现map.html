@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>hello</h1>
+</body>
+<script>
+    Array.prototype.myMap = function (func) {
+        const arr = this;
+        return arr.reduce((pre, ele) => {
+            return [...pre, func(ele)];
+        }, []);
+    }
+    const arr = [1, 2, 3, 4, 5];
+    const newarr = arr.myMap((ele) => ele * 2);
+    console.log(arr);
+    console.log(newarr);
+</script>
+
+</html>

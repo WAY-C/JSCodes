@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    hello world
+</body>
+<script>
+    // ES5
+    // var Person = function (name) {
+    //     this.name = name;
+    // }
+    // var Singleton = function (Obj) {
+    //     var instance;
+    //     Singleton = function () {
+    //         if (instance) {
+    //             return instance;
+    //         } else {
+    //             return instance = new Obj(arguments);
+    //         }
+    //     }
+    //     return Singleton;
+    // }
+    // var PersonSingleton = Singleton(Person);
+    // var a = new PersonSingleton('a');
+    // var b = new PersonSingleton('b');
+    // console.log(a === b);
+    // console.log(Singleton);
+
+    // ES6
+    class Person {
+        constructor(name) {
+            if (typeof Person.instance === 'object') {
+                return Person.instance;
+            }
+            Person.instance = this;
+            this.name = name;
+            return this;
+        }
+    }
+    const a = new Person('a');
+    const b = new Person('b');
+    console.log(a === b);
+    var People = function (name) {
+        this.name = name;
+    }
+</script>
+
+</html>
