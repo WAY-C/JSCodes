@@ -1,0 +1,9 @@
+今日复习
+如何遍历DOM树
+HTTP协议（发展、常用请求方式、常见状态码、请求和响应的格式、常用字段）
+cookie和sesion的，cookie和webStorage
+如何实现单例模式（new Person()只返回一个实例）
+自定义数组原型方法add和minus
+用reduce实现map等
+
+完成了小米的测评，约了后天奇安信的笔试
