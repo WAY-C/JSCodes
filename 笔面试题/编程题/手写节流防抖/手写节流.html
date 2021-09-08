@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        //规定时间内只执行一次
+        function throttle(fn, delay) {
+            var context, args;
+            var lastTime = 0;
+            return function () {
+                var nowTime = Date.now();
+                context = this;
+                args = arguments;
+                if (nowTime - lastTime > delay) {
+                    fn.apply(context, args);
+                    lastTime = nowTime;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

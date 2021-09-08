@@ -1,0 +1,337 @@
+1.请根据下面的示例描述原型链与继承的关系并解释原因：
+class A {}
+class B extends A {}
+const a = new A()
+const b = new B()
+a.proto ===
+b.proto ===
+B.proto ===
+B.prototype.proto ===
+b.proto.proto ===
+
+A.prototype
+B.prototype
+A
+A.prototype
+A.prototype
+
+2.请表述以下代码的执行结果和原因：
+setTimeout(function){
+console.log(1);
+},0)
+new Promise(function execulor(resolve){
+    console.log(2)
+for(var i = 0；i<10000;i+=1){
+i ==9999 && resolve()
+}
+console.log(3)
+}).then(function(){
+console.log(4)
+})
+console.log(5)
+
+2
+3
+5
+4
+1
+
+3.ajax 的 readyState 有哪几个状态，含义分别是什么？
+5 个状态，分别是 0-4
+0: 还没调用open方法
+1: 未调用send方法，也就是还没发送数据给服务器
+2: 还没有接收到响应
+3: 开始接收到了部分数据
+4: 接收完成，数据可以在客户端使用了
+
+4.
+4-1：
+const paddingNum = num => (num).toLocaleString('en-US')
+
+4-2：；
+function paddingNum(inputNum){
+    let flag = inputNum > 0 ? true : false;
+    let numArr = Math.abs(inputNum).toString().split('.');
+    let right = numArr[1] ? '.'+numArr[1] : '';
+    let left = numArr[0];
+    let temp = '';
+    while(left.length > 3){
+        temp = ',' + left.slice(-3) + temp;
+        left = left.slice(0,left.length-3);
+    }
+    return flag? left+temp + right : '-'+left+temp+right;
+}
+
+4-3：
+function paddingNum(number) {
+
+    const rod = number < 0 ? '-' : ''
+    const originalValue = `${Math.abs(number)}`.split('.')
+    const reverseValue = [...originalValue[0]].reverse()
+    const dotValue = originalValue[1] ? `${originalValue[1]}` : ''
+    const mergeValue = []
+
+    for (let i = 0; i < reverseValue.length; i++) {
+        if (i % 3 === 0 && i !== 0) {
+            mergeValue.push(',')
+        }
+        mergeValue.push(reverseValue[i])
+        
+        if (i === reverseValue.length - 1) {
+            return `${rod}${mergeValue.reverse().join('')}${dotValue}`
+        }
+    }
+}
+
+
+5.
+5-1：
+function productExceptSelf(input){
+    if(input.lenght==0){
+        return []
+    }
+    let mul=input.reduce((total,n) =>{
+        return total*n
+    },1)
+    return input.map(n => {return mul/n})
+}
+
+5-2：
+ 可以先判断有没有0元素，再用这个方法
+function getNum(arr){
+    var newArr=[];
+    var sum=1;
+    for(var i=0;i<arr.length;i++){
+        sum=sum*arr[i];
+    }
+    console.log(sum);
+    for(var j=0;j<arr.length;j++){
+        var item=sum/arr[j];
+        newArr.push(item);
+    }
+   return newArr;
+}
+
+6.薯队长带着小红薯参加密室逃脱团建游戏，首先遇到了反转游戏，小红薯们根据游戏提示收集了多个单词线索，并将单词按要求加一个空格组 成了句子，最终要求把句子按单词反转解密。 说明：收集的时候单词前后可能会有多个空格，反转后单词不能有多个空格，具体见输入输出样例。
+输入描述:
+输入一个字符串。包含空格和可见字符。长度<=100000。 
+
+输出描述:
+输出一个字符串，表示反转后结果。
+
+输入例子1:
+the	sky	is												blue!
+
+输出例子1:
+blue! is sky the
+
+6-1（自己，90%）
+let str = readline();
+if(str) {
+    let strArr = str.split(/\s+/);
+    if(strArr[0] == '') {
+        strArr.shift();
+    }
+    if(strArr[strArr.length] == '') {
+        strArr.pop();
+    }
+    let ret = strArr.reverse().join(' ');
+    console.log(ret);
+} else {
+    console.log('');
+}
+
+6-2
+正则表达式也可以写成 /[\S]+/g
+function reverseStr (str) {
+    var s = str.match(/[^\s]+/g)
+    s = s.reverse()
+    return s.join(' ')
+}
+
+7. 薯队长写了n篇笔记，编号从1~n,每篇笔记都获得了不少点赞数。    
+薯队长想从中选出一些笔记，作一个精选集合。挑选的时候有两个规则：
+ 1.不能出现连续编号的笔记。 
+2.总点赞总数最多 
+如果满足1，2条件有多种方案，挑选笔记总数最少的那种
+输入描述:
+输入包含两行。第一行整数n表示多少篇笔记。 第二行n个整数分别表示n篇笔记的获得的点赞数。   
+ （0<n<=1000,    0<=点赞数<=1000) 
+
+输出描述:
+输出两个整数x,y。空格分割。
+ x表示总点赞数，y表示挑选的笔记总数。
+
+输入例子1:
+4
+1 2 3 1
+
+输出例子1:
+4 2
+
+7-1：
+思路：要在一个连续的数组里面选k个数，使得这k个数的点赞最多，并且还不能选编号连续的数（比如选了nums[i]，就不能选nums[i + 1]，只能选nums[i + 2]........），那也就是说：要得到最大的点赞量，要看你前面是怎么选的，那既然后面的结果受前面的选择所影响，很容易联想到动态规划，因为通俗地讲，动态规划就是一个递推式，由前面推到后面，我们需要推到第n个数，从第1个数开始推。这样，我们定义dp(n + 1)，dp[i]就表示选到第i个数的时候，能获得的最大点赞数。最终的dp[n]就该是需要输出的最大点赞数。
+那接下来就是怎么推的问题了。首先，遇到一个数nums[i]，我有两种选择：选这个数，那么意味着我前面的nums[i - 1]不能选，只能选nums[i - 2]；不选这个数呢？那么意味着我可以选nums[i - 1]，由于我要取最大点赞数，所以取它们俩的大者 赋值到dp[i]即可，以此类推到n。
+至此，基本思路讲解完毕，现在还有一个问题，我们需要统计选了几个数。这个比较简单，选一个就+1,嘛，所以count[i] = count[i - 2] + 1; 或者 count[i] = count[i - 1]，这时候应该可以理解这两句话的含义了吧，就是选与不选nums[i]的问题了。下面看代码：
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// dp[i]: 从第一篇笔记开始选到第i篇, 所能得到的最大点赞数。
+// count[i]: 此时选取的笔记数量
+int main(){
+    int n, val;
+    cin >> n;
+    vector<int> vec(n + 1, 0);
+    for(int i = 1; i <= n; ++i){
+        cin >> val;
+        vec[i] = val;
+    }
+    vector<int> dp(n + 1, 0);  
+    vector<int> count(n + 1, 0);
+    dp[1] = vec[1];  //选第一篇笔记, 最大点赞数自然就是vec[1]
+    count[1] = 1;    //选了一个数
+    for(int i = 2; i <= n; ++i){
+        //选了dp[i - 2], 就不能选dp[i - 1], 但可以选vec[i](不能连续)
+        if(dp[i - 1] < dp[i - 2] + vec[i]){
+            dp[i] = dp[i - 2] + vec[i];
+            count[i] = count[i - 2] + 1;
+        } else{
+            //不选dp[i - 2]和vec[i]
+            dp[i] = dp[i - 1];
+            count[i] = count[i - 1];
+        }
+    }
+    cout << dp[n] << ' ' << count[n] << endl;
+    return 0;
+}
+
+7-2：
+类似打家劫舍的问题。利用动态规划
+dp[i] = x 表示从i开始选笔记，最大点赞数为x。dpNum[i]表示此时选取的次数
+动态转移方程为dp[i] = max(dp[i+1], dp[i+2]+nums[i])
+由于本题还需要求次数，所以再构造一个dpNum数组，用来存储得到dp[i]时，选取的笔记次数。状态方程与dp数组类似，当选取了nums[i]，则dpNum[i] = dpNum[i+2]+1,否则在不选取的情况下，dpNum[i]=dpNum[i+1]
+从后往前迭代求解，所以数组需初始化大小为n+2,初值均为0(方便求解dp[n-1])
+
+import sys
+n = eval(input())
+nums = [int(i) for i in sys.stdin.readline().split()]
+dp = [0 for _ in range(n+2)]
+dpNum = [0 for _ in range(n+2)]
+num = 0
+for i in range(n-1, -1, -1):
+    if dp[i+1] < dp[i+2]+nums[i]:
+        dp[i] = dp[i+2]+nums[i]
+        dpNum[i] = dpNum[i+2]+1
+    else:
+        dp[i] = dp[i+1]
+        dpNum[i] = dpNum[i+1]
+print(dp[0], dpNum[0])
+
+8.薯队长来到了迷宫的尽头，面前出现了N只魔物，Hi表示第i只魔物的血量，薯队长需要在T个回合内击败所有魔物才能获胜。每个回合薯队长可 以选择物理攻击一只魔物，对其造成1点伤害（物理攻击次数无上限）;        或者消耗1点法力释放必杀技对其造成固定X点伤害（薯队长开始拥有M 点法力）。问X至少多大，薯队长才有机会获胜；如果无论如何都无法在T回合内获胜，则输出-1 
+输入描述:
+第一行三个整数分别表示：N，T，M 第二行有N个整数：H1，H2，H3...HN 
+
+输出描述:
+输出一个整数，表示必杀技一次最少造成多少固定伤害 
+
+输入例子1:
+3 4 3
+5 2 1
+
+输出例子1:
+3
+import java.util.*;
+public class Main{
+    public static void main(String[] args){
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        int t = in.nextInt();
+        int m = in.nextInt();
+        Integer[] h = new Integer[n];
+        int maxH=0,totalH=0;
+        //获取怪物血量输入，顺便找出最大怪物血量，顺便计算怪物总血量。
+        for (int i=0;i<h.length;i++){
+            int s = in.nextInt();
+            h[i] = s;
+            maxH=Math.max(maxH,s);
+            totalH+=s;
+        }
+        //如果怪物总血量小于回合数，说明平A就能解决所有怪物，所以必杀技伤害为最低0
+        if(totalH<=t){
+            System.out.println(0);
+            return;
+        }
+        //把怪物的血量从大到小排序
+        Arrays.sort(h,Collections.reverseOrder());
+        /*从2到最大怪兽血量maxH，进行升序循环判断，找到第一个伤害就是，最低必杀技伤害
+        Q:为什么从2开始？A:因为普工伤害为1，必杀技小于等于普工伤害时，都使用普工解决就可以
+        */
+        for (int i=2;i<=maxH;i++){
+            //判断该必杀技伤害是否能够通关
+            if(dfs(h,t,m,i,totalH)){
+                System.out.println(i);
+                return;
+            }
+        }
+        System.out.println(-1);
+    }
+    public static boolean dfs(Integer[] h,int t,int m,int x,int totalH){
+        //判断回合数是否大于蓝量
+        if(t>m){
+            //看所有蓝量用完后再在回合内使用普工时，所能造成的总血量是否大于怪物总血量，如果不行，则无法通关
+            if(t-m+m*x>=totalH){
+                /**
+                怪物血量大于必杀技伤害的，每一个都使用必杀技，确保必杀技伤害不溢出。
+                **/
+                Integer[] ht = Arrays.copyOf(h,h.length);
+                int j=0;
+                for(int i=0;i<h.length&&m>0&&h[i]>=x;i++){
+                    int st = h[i]/x;
+                    int sx = h[i]%x;
+                    if(st<=m){
+                        ht[i] = sx;
+                        totalH -= st*x;
+                        m-=st;
+                        t-=st;
+                    }else{
+                        ht[i] -= m*x;
+                        totalH -= m*x;
+                        m=0;
+                        t-=m;
+                    }
+                }
+                //如果必杀技使用完毕，则只能进行平砍，判断怪物总剩余血量是否小于等于剩余回合数就行
+                if(m==0){
+                    return totalH<=t-m;
+                }else {
+                    //如果必杀技未使用完毕，则直接对剩余血量最多的怪再次使用必杀技，确保必杀技利益最大化。
+                    //怪物剩余血量再排序
+                    Arrays.sort(ht, Collections.reverseOrder());
+                    //由于java最后10%的案例超时，所以判断了一下剩余蓝量是否大于怪物数量的一半
+                    if(m>ht.length/2){
+                        //如果超过一半，则只需计算另外一半未死的怪物血量就是剩余怪物总血量
+                        totalH = 0;
+                        for (int i = m; i < ht.length; i++) {
+                            totalH += ht[i];
+                        }
+                    }else {
+                        //如果没有超过一半，则每一只怪死掉后，总血量减去该怪物的剩余血量就行
+                        for (int i = 0; i < m; i++) {
+                            totalH -= ht[i];
+                        }
+                    }
+                    //通过以上步骤算出怪物剩余总血量，如果小于使用全部技能后的回合数，就能平A通关了，如果不行则不能进行通关操作
+                    return totalH <= t - m;
+                }
+            }else{
+                return false;
+            }
+        }else{
+            //如果回合数小于等于蓝量，则全程使用必杀技，看是否通关。
+            //直接回合数*必杀技看是否大于怪物总血量
+            return t*x>=totalH;
+        }
+    }
+}
+

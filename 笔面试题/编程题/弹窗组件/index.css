@@ -1,0 +1,23 @@
+.toast{
+    width:200px;
+    height:80px;
+    border:1px black solid;
+    text-align:center;
+    line-height:80px;
+    position:fixed;
+    left:50%;
+    top:50%;
+    margin-top:-40px;
+    margin-left:-100px;
+    animation:move 1s linear;
+  }
+  @keyframes move{
+    0%{
+      transform:translateY(100%);
+      opacity:0;
+    }
+    100%{
+      transform:translateY(0);
+      opacity:1;
+    }
+  }

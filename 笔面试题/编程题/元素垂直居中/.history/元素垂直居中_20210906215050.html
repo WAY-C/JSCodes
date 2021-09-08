@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>元素垂直居中</title>
+    <!-- 利用flex -->
+    <!-- <style>
+        .father {
+            width: 500px;
+            height: 500px;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .son {
+            width: 100px;
+            height: 100px;
+            background: #f00;
+        }
+
+    </style> -->
+    <!-- 利用绝对定位 -->
+    <!-- <style>
+        .father {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background: #000;
+        }
+
+        .son {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #f00;
+            top: 50%;
+            left: 50%;
+            /* margin: -50px -50px -50px -50px; */
+            /* 或 */
+            /* margin-top: -50px;
+            margin-left: -50px; */
+            /* 当宽高未知时 */
+            transform: translate(-50%, -50%);
+        } 
+    </style>-->
+    <!-- 利用margin auto -->
+    <style>
+        .father {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background: #000;
+        }
+
+        .son {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #f00;
+            top: 0;
+            right: 0;
+            /* bottom: 0; */
+            /* left: 0; */
+            margin: auto;
+        }
+
+    </style>
+    <!-- 利用table-cell -->
+    <!-- <style>
+        .father {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            width: 500px;
+            height: 500px;
+            background: #000;
+            border: 1px solid #000;
+        }
+
+        .son {
+            width: 100px;
+            height: 100px;
+            background: #f00;
+            display: inline-block;
+            border: 1px solid #000;
+        }
+
+    </style> -->
+    <!-- 利用flex 子元素 -->
+    <!-- <style>
+        .father {
+            width: 500px;
+            height: 500px;
+            background: #000;
+            display: flex;
+            justify-content: center;
+        }
+
+        .son {
+            width: 100px;
+            height: 100px;
+            background: #f00;
+            align-self: center;
+        }
+
+    </style> -->
+</head>
+
+<body>
+    <div class="father">
+        <div class="son"></div>
+    </div>
+</body>
+
+</html>

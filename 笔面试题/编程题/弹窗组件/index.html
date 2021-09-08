@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class='toast'>弹窗组件</idv>
+</body>
+<script>
+    var toast = document.getElementsByClassName('toast')[0]
+    var parent = toast.parentNode
+    setTimeout(() => {
+        parent.removeChild(toast)
+    }, 2000)
+</script>
+
+</html>

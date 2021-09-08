@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    hello world
+</body>
+<script>
+    function format(s) {
+        const sArr = s.split('-');
+        for (i = 1; i < sArr.length; i++) {
+            let tempArr = sArr[i].split('');
+            tempArr[0] = tempArr[0].toUpperCase();
+            sArr[i] = tempArr.join('');
+        }
+        return sArr.join('');
+    }
+    console.log(format('get-element-by-id'));
+</script>
+
+</html>
