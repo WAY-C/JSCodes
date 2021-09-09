@@ -1,0 +1,12 @@
+今日完成：
+简易的TodoList程序（Vue组件化编程实现），并将项目提交到github
+剑指offer3道题
+
+今日复习：
+props使用的注意事项
+v-model绑定数据时不修改props传递的值
+nanoid和uuid库的使用
+JS操作localStorage和sessionStorage
+什么是状态提升
+JS数组的filter方法，reduce方法
+下载了面试题分享
