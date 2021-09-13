@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    Hello World
+</body>
+<script>
+    function findMin(str, k) {
+        let arr = str.split('').map(Number);
+        let ret = [];
+        if (k === str.length) {
+            return 0;
+        } else {
+            for (let i = 0; i < arr.length; i++) {
+                // 当栈顶不为空，且当前元素小于栈顶元素，且还有删除次数时
+                while (ret.length && arr[i] < ret[ret.length - 1] && k > 0) {
+                    // 栈顶元素出栈
+                    ret.pop();
+                    // 删除次数减1
+                    k--;
+                    // 当前元素入栈
+                    ret.push(arr[i]);
+                }
+                // 第一个元素入栈及后续剩余元素入栈
+                ret.push(arr[i]);
+            }
+            // 找到第一个非零的位置
+            let start = 0;
+            while (start < ret.length && ret[start] == 0) {
+                start++;
+            }
+            ret = ret.slice(start);
+            return parseInt(ret.join(''), 10);
+        }
+    }
+    console.log(findMin(1593212, 3));
+</script>
+
+</html>

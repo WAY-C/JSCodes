@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    Hello World
+</body>
+<script>
+    function findMin(str, k) {
+        let ret = [];
+        if (k === str.length) {
+            return 0;
+        } else {
+            for (let i = 0; i < str.length; i++) {
+                if (k--) {
+                    if (str[i + 1] < str[i]) {
+                        i++;
+                    }
+                }
+                // 若首位已存在
+                if (ret[0]) {
+                    ret.push(str[i]);
+                } else {
+                    // 若首位不存在，跳过0
+                    if (str[i] == '0') {
+                        i++;
+                    }
+                    ret.push(str[i]);
+                }
+            }
+            return parseInt(ret.join(''));
+        }
+    }
+    console.log(findMin('10200'));
+</script>
+
+</html>
