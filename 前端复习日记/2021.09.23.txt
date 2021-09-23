@@ -1,0 +1,8 @@
+今日复习：
+1.http状态码
+2.position属性的值和含义
+3.垂直水平居中
+4.手写题（new、setTimeout实现setInterval、发布订阅模式、节流、防抖）
+今日完成：
+奇安信一面
+预约了TX笔试、BD面试
