@@ -1,0 +1,7 @@
+今日复习：
+Vue组件间通信方法
+自定义事件
+nextTick
+ref
+mixin
+插槽
