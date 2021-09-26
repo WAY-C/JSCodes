@@ -19,4 +19,4 @@ mockInterval((value) => {
 
 setTimeout(() => {
     mockClearSetInterval(timerId);
-}, 5000);
+}, 4000);
